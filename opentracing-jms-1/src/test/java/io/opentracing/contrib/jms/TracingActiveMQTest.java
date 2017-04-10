@@ -11,7 +11,6 @@ import io.opentracing.mock.MockTracer;
 import io.opentracing.tag.Tags;
 import io.opentracing.util.GlobalTracer;
 import org.apache.activemq.ActiveMQConnectionFactory;
-import org.hamcrest.core.IsEqual;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -34,6 +33,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import static com.jayway.awaitility.Awaitility.await;
+import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -127,7 +127,7 @@ public class TracingActiveMQTest {
         producer.send(message);
         countDownLatch.await(15, TimeUnit.SECONDS);
 
-        await().atMost(15, TimeUnit.SECONDS).until(reportedSpansSize(), IsEqual.equalTo(2));
+        await().atMost(15, TimeUnit.SECONDS).until(reportedSpansSize(), equalTo(2));
 
         List<MockSpan> mockSpans = mockTracer.finishedSpans();
         assertEquals(2, mockSpans.size());
