@@ -11,6 +11,7 @@ import io.opentracing.mock.MockTracer;
 import io.opentracing.tag.Tags;
 import io.opentracing.util.GlobalTracer;
 import org.apache.activemq.ActiveMQConnectionFactory;
+import org.hamcrest.core.IsEqual;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -28,9 +29,11 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import static com.jayway.awaitility.Awaitility.await;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -113,7 +116,6 @@ public class TracingActiveMQTest {
                 new MessageListener() {
                     @Override
                     public void onMessage(Message message) {
-                        System.out.println("Received: " + message);
                         countDownLatch.countDown();
                     }
                 });
@@ -123,7 +125,9 @@ public class TracingActiveMQTest {
         TextMessage message = session.createTextMessage("Hello world");
 
         producer.send(message);
-        countDownLatch.await(5, TimeUnit.SECONDS);
+        countDownLatch.await(15, TimeUnit.SECONDS);
+
+        await().atMost(15, TimeUnit.SECONDS).until(reportedSpansSize(), IsEqual.equalTo(2));
 
         List<MockSpan> mockSpans = mockTracer.finishedSpans();
         assertEquals(2, mockSpans.size());
@@ -143,5 +147,14 @@ public class TracingActiveMQTest {
             assertTrue(operationName.equals(TracingMessageUtils.OPERATION_NAME_SEND)
                     || operationName.equals(TracingMessageUtils.OPERATION_NAME_RECEIVE));
         }
+    }
+
+    private Callable<Integer> reportedSpansSize() {
+        return new Callable<Integer>() {
+            @Override
+            public Integer call() throws Exception {
+                return mockTracer.finishedSpans().size();
+            }
+        };
     }
 }
