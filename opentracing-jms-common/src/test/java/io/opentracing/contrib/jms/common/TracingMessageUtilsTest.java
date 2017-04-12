@@ -72,7 +72,7 @@ public class TracingMessageUtilsTest {
 
         assertEquals(1, mockTracer.finishedSpans().size());
         assertEquals(TracingMessageUtils.OPERATION_NAME_RECEIVE, span2.operationName());
-        assertEquals(Tags.SPAN_KIND_CLIENT, span2.tags().get(Tags.SPAN_KIND.getKey()));
+        assertEquals(Tags.SPAN_KIND_CONSUMER, span2.tags().get(Tags.SPAN_KIND.getKey()));
         assertEquals(TracingMessageUtils.COMPONENT_NAME, span2.tags().get(Tags.COMPONENT.getKey()));
         assertEquals(span.context().spanId(), span2.parentId());
         assertEquals(span.context().traceId(), span2.context().traceId());

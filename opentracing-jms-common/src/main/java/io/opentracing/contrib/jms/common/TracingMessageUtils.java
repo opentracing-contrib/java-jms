@@ -34,13 +34,16 @@ public class TracingMessageUtils {
         return child;
     }
 
-    public static Span buildFollowingSpan(Message message) {
+    /**
+     * It is used by consumers only
+     */
+    static Span buildFollowingSpan(Message message) {
         SpanContext context = extract(message);
 
         if (context != null) {
 
             Tracer.SpanBuilder spanBuilder = GlobalTracer.get().buildSpan(OPERATION_NAME_RECEIVE)
-                    .withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_CLIENT);
+                    .withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_CONSUMER);
 
             spanBuilder.addReference(References.FOLLOWS_FROM, context);
 
@@ -94,7 +97,7 @@ public class TracingMessageUtils {
         Tracer tracer = GlobalTracer.get();
 
         Tracer.SpanBuilder spanBuilder = tracer.buildSpan(TracingMessageUtils.OPERATION_NAME_SEND)
-                .withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_CLIENT);
+                .withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_PRODUCER);
 
         SpanContext parent = TracingMessageUtils.extract(message);
 

@@ -87,7 +87,8 @@ public class TracingJmsTemplateTest {
 
     private void checkSpans(List<MockSpan> mockSpans) {
         for (MockSpan mockSpan : mockSpans) {
-            assertEquals(Tags.SPAN_KIND_CLIENT, mockSpan.tags().get(Tags.SPAN_KIND.getKey()));
+            assertTrue(mockSpan.tags().get(Tags.SPAN_KIND.getKey()).equals(Tags.SPAN_KIND_CONSUMER)
+                    || mockSpan.tags().get(Tags.SPAN_KIND.getKey()).equals(Tags.SPAN_KIND_PRODUCER));
             assertEquals(TracingMessageUtils.COMPONENT_NAME, mockSpan.tags().get(Tags.COMPONENT.getKey()));
             assertEquals(0, mockSpan.generatedErrors().size());
             String operationName = mockSpan.operationName();
