@@ -39,4 +39,11 @@ public class JmsTextMapInjectAdapterTest {
         assertEquals("value2", message.getStringProperty("key2"));
     }
 
+    @Test
+    public void propertyWithDash() throws JMSException {
+        JmsTextMapInjectAdapter adapter = new JmsTextMapInjectAdapter(message);
+        adapter.put("key-1", "value1");
+        assertEquals("value1", message.getStringProperty("key1"));
+    }
+
 }
