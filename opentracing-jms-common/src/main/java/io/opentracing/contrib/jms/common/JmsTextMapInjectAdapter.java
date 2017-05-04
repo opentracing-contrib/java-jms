@@ -25,10 +25,17 @@ public class JmsTextMapInjectAdapter implements TextMap {
     @Override
     public void put(String key, String value) {
         try {
-            message.setStringProperty(key, value);
+            // TODO: decide what is the best approach for this mismatch: JMS doesn't allow dashes in the key name
+            message.setStringProperty(cleanForJms(key), value);
         } catch (JMSException e) {
             throw new RuntimeException(e);
         }
+    }
 
+    private String cleanForJms(String key) {
+        if (key == null || key.isEmpty()) {
+            return key;
+        }
+        return key.replaceAll("-", "");
     }
 }
