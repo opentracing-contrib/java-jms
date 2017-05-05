@@ -10,6 +10,7 @@ import javax.jms.JMSException;
 import java.util.Iterator;
 import java.util.Map;
 
+import static io.opentracing.contrib.jms.common.JmsTextMapInjectAdapter.DASH;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
@@ -48,4 +49,15 @@ public class JmsTextMapExtractAdapterTest {
         assertEquals("key", entry.getKey());
         assertEquals("value", entry.getValue());
     }
+
+    @Test
+    public void propertyWithDash() throws JMSException {
+        message.setStringProperty(DASH + "key" + DASH + "1" + DASH, "value1");
+        JmsTextMapExtractAdapter adapter = new JmsTextMapExtractAdapter(message);
+        Iterator<Map.Entry<String, String>> iterator = adapter.iterator();
+        Map.Entry<String, String> entry = iterator.next();
+        assertEquals("-key-1-", entry.getKey());
+        assertEquals("value1", entry.getValue());
+    }
+
 }

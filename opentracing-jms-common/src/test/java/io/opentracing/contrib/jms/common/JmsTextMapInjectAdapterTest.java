@@ -8,6 +8,7 @@ import org.junit.rules.ExpectedException;
 
 import javax.jms.JMSException;
 
+import static io.opentracing.contrib.jms.common.JmsTextMapInjectAdapter.DASH;
 import static org.junit.Assert.assertEquals;
 
 
@@ -39,4 +40,13 @@ public class JmsTextMapInjectAdapterTest {
         assertEquals("value2", message.getStringProperty("key2"));
     }
 
+    @Test
+    public void propertyWithDash() throws JMSException {
+        JmsTextMapInjectAdapter adapter = new JmsTextMapInjectAdapter(message);
+        adapter.put("key-1", "value1");
+        assertEquals("value1", message.getStringProperty("key" + DASH + "1"));
+
+        adapter.put("-key-1-2-", "value2");
+        assertEquals("value2", message.getStringProperty(DASH + "key" + DASH + "1" + DASH + "2" + DASH));
+    }
 }

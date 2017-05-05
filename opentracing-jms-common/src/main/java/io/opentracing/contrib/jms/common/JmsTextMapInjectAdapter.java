@@ -11,6 +11,7 @@ import java.util.Map;
  * Helper class to inject span context into JMS message properties
  */
 public class JmsTextMapInjectAdapter implements TextMap {
+    static final String DASH = "_$dash$_";
     private final Message message;
 
     public JmsTextMapInjectAdapter(Message message) {
@@ -25,10 +26,20 @@ public class JmsTextMapInjectAdapter implements TextMap {
     @Override
     public void put(String key, String value) {
         try {
-            message.setStringProperty(key, value);
+            message.setStringProperty(encodeDash(key), value);
         } catch (JMSException e) {
             throw new RuntimeException(e);
         }
+    }
 
+    /**
+     * Encode all dashes because JMS specification doesn't allow them in property name
+     */
+    private String encodeDash(String key) {
+        if (key == null || key.isEmpty()) {
+            return key;
+        }
+
+        return key.replace("-", DASH);
     }
 }

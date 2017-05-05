@@ -44,8 +44,8 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.build.resourceEncoding>UTF-8</project.build.resourceEncoding>
 
-        <opentracing.version>0.21.0</opentracing.version>
-        <activemq.version>5.14.4</activemq.version>
+        <opentracing.version>0.22.0</opentracing.version>
+        <activemq.version>5.14.5</activemq.version>
     </properties>
 
     <modules>
@@ -67,7 +67,7 @@
             <dependency>
                 <groupId>io.opentracing.contrib</groupId>
                 <artifactId>opentracing-spanmanager</artifactId>
-                <version>0.0.3</version>
+                <version>0.0.4</version>
             </dependency>
 
             <dependency>

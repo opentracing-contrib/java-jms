@@ -24,7 +24,7 @@ public class JmsTextMapExtractAdapter implements TextMap {
                     String key = (String) enumeration.nextElement();
                     Object value = message.getObjectProperty(key);
                     if (value instanceof String) {
-                        map.put(key, (String) value);
+                        map.put(decodeDash(key), (String) value);
                     }
                 }
             }
@@ -41,5 +41,12 @@ public class JmsTextMapExtractAdapter implements TextMap {
     @Override
     public void put(String key, String value) {
         throw new UnsupportedOperationException("JmsTextMapExtractAdapter should only be used with Tracer.extract()");
+    }
+
+    /**
+     * Decode dashes (encoded in {@link JmsTextMapInjectAdapter}
+     */
+    private String decodeDash(String key) {
+        return key.replace(JmsTextMapInjectAdapter.DASH, "-");
     }
 }
