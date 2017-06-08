@@ -11,7 +11,7 @@ pom.xml
 <dependency>
     <groupId>io.opentracing.contrib</groupId>
     <artifactId>opentracing-jms-1</artifactId>
-    <version>0.0.1</version>
+    <version>0.0.3</version>
 </dependency>
 ```
 
@@ -21,7 +21,7 @@ pom.xml
 <dependency>
     <groupId>io.opentracing.contrib</groupId>
     <artifactId>opentracing-jms-2</artifactId>
-    <version>0.0.1</version>
+    <version>0.0.3</version>
 </dependency>
 ```
 
@@ -31,7 +31,7 @@ pom.xml
 <dependency>
     <groupId>io.opentracing.contrib</groupId>
     <artifactId>opentracing-jms-spring</artifactId>
-    <version>0.0.1</version>
+    <version>0.0.3</version>
 </dependency>
 ```
 You most likely need to exclude spring-jms dependency and add own (to avoid jar hell):
@@ -39,7 +39,7 @@ You most likely need to exclude spring-jms dependency and add own (to avoid jar 
 <dependency>
     <groupId>io.opentracing.contrib</groupId>
     <artifactId>opentracing-jms-spring</artifactId>
-    <version>0.0.1</version>
+    <version>0.0.3</version>
     <exclusions>
         <exclusion>
             <groupId>org.springframework</groupId>
@@ -58,27 +58,22 @@ You most likely need to exclude spring-jms dependency and add own (to avoid jar 
 
 ## Usage
 
-`DefaultSpanManager` is used to get active span
-
 ```java
 // Instantiate tracer
 Tracer tracer = ...
-
-// Register tracer with GlobalTracer
-GlobalTracer.register(tracer);
 
 ```
 
 ### JMS API
 ```java
 // decorate JMS MessageProducer with TracingMessageProducer
-TracingMessageProducer producer = new TracingMessageProducer(messageProducer);
+TracingMessageProducer producer = new TracingMessageProducer(messageProducer, tracer);
 
 // decorate JMS MessageConsumer with TracingMessageConsumer
-TracingMessageConsumer consumer = new TracingMessageConsumer(messageConsumer);
+TracingMessageConsumer consumer = new TracingMessageConsumer(messageConsumer, tracer);
 
 // decorate JMS MessageListener if used with TracingMessageListener
-TracingMessageListener listener = new TracingMessageListener(messageListener);
+TracingMessageListener listener = new TracingMessageListener(messageListener, tracer);
 consumer.setMessageListener(listener);
 
 // send message
@@ -93,7 +88,7 @@ Message message = consumer.receive();
 ### Spring JMS
 ```java
 // create TracingJmsTemplate which extends Spring JmsTemplate
-JmsTemplate jmsTemplate = new TracingJmsTemplate(connectionFactory); 
+JmsTemplate jmsTemplate = new TracingJmsTemplate(connectionFactory, tracer); 
 
 // send and receive messages as usual
 jmsTemplate.send(...)
@@ -106,8 +101,8 @@ jmsTemplate.receiveAndConvert(...);
 If `@JmsListener` is used then it is required to decorate MessageConverter with TracingMessageConverter e.g.
  ```java
 @Bean
-public MessageConverter tracingJmsMessageConverter() {
-    return new TracingMessageConverter(jacksonJmsMessageConverter());
+public MessageConverter tracingJmsMessageConverter(Tracer tracer) {
+    return new TracingMessageConverter(jacksonJmsMessageConverter(), tracer);
 }
 
 private MessageConverter jacksonJmsMessageConverter() {
@@ -118,8 +113,8 @@ private MessageConverter jacksonJmsMessageConverter() {
 }
 
 @Bean
-public JmsTemplate jmsTemplate(ConnectionFactory connectionFactory) {
-    JmsTemplate jmsTemplate = new TracingJmsTemplate(connectionFactory);
+public JmsTemplate jmsTemplate(ConnectionFactory connectionFactory, Tracer tracer) {
+    JmsTemplate jmsTemplate = new TracingJmsTemplate(connectionFactory, tracer);
     jmsTemplate.setMessageConverter(jacksonJmsMessageConverter());
     return jmsTemplate;
 }
@@ -135,5 +130,5 @@ public JmsListenerContainerFactory<?> myFactory(ConnectionFactory connectionFact
 
 [ci-img]: https://travis-ci.org/opentracing-contrib/java-jms.svg?branch=master
 [ci]: https://travis-ci.org/opentracing-contrib/java-jms
-[maven-img]: https://img.shields.io/maven-central/v/io.opentracing.contrib/opentracing-jms-1.svg?maxAge=2592000
+[maven-img]: https://img.shields.io/maven-central/v/io.opentracing.contrib/opentracing-jms-1.svg
 [maven]: http://search.maven.org/#search%7Cga%7C1%7Copentracing-jms-1
