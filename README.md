@@ -98,33 +98,13 @@ jmsTemplate.receiveAndConvert(...);
 ...
 ```
 
-If `@JmsListener` is used then it is required to decorate MessageConverter with TracingMessageConverter e.g.
+If `@JmsListener` is used then it is required to import TracingJmsConfiguration e.g.
  ```java
-@Bean
-public MessageConverter tracingJmsMessageConverter(Tracer tracer) {
-    return new TracingMessageConverter(jacksonJmsMessageConverter(), tracer);
-}
-
-private MessageConverter jacksonJmsMessageConverter() {
-    MappingJackson2MessageConverter converter = new MappingJackson2MessageConverter();
-    converter.setTargetType(MessageType.TEXT);
-    converter.setTypeIdPropertyName("_type");
-    return converter;
-}
-
-@Bean
-public JmsTemplate jmsTemplate(ConnectionFactory connectionFactory, Tracer tracer) {
-    JmsTemplate jmsTemplate = new TracingJmsTemplate(connectionFactory, tracer);
-    jmsTemplate.setMessageConverter(jacksonJmsMessageConverter());
-    return jmsTemplate;
-}
-
-@Bean
-public JmsListenerContainerFactory<?> myFactory(ConnectionFactory connectionFactory,
-                                                DefaultJmsListenerContainerFactoryConfigurer configurer) {
-    DefaultJmsListenerContainerFactory factory = new DefaultJmsListenerContainerFactory();
-    configurer.configure(factory, connectionFactory);
-    return factory;
+@Configuration 
+@Import(TracingJmsConfiguration.class)
+@EnableJms
+public class JmsConfiguration {
+  ...
 }
 ```
 
