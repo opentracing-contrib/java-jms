@@ -62,7 +62,7 @@
     <project.build.resourceEncoding>UTF-8</project.build.resourceEncoding>
 
     <opentracing.version>0.30.0</opentracing.version>
-    <activemq.version>5.14.5</activemq.version>
+    <activemq.version>5.15.1</activemq.version>
   </properties>
 
   <modules>
@@ -88,9 +88,9 @@
       </dependency>
 
       <dependency>
-        <groupId>com.jayway.awaitility</groupId>
+        <groupId>org.awaitility</groupId>
         <artifactId>awaitility</artifactId>
-        <version>1.7.0</version>
+        <version>3.0.0</version>
       </dependency>
 
       <dependency>
@@ -103,7 +103,7 @@
 
   <dependencies>
     <dependency>
-      <groupId>com.jayway.awaitility</groupId>
+      <groupId>org.awaitility</groupId>
       <artifactId>awaitility</artifactId>
       <scope>test</scope>
     </dependency>

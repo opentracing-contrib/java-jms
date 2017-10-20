@@ -39,13 +39,13 @@
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-jms</artifactId>
-      <version>4.3.8.RELEASE</version>
+      <version>4.3.12.RELEASE</version>
     </dependency>
 
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-test</artifactId>
-      <version>4.3.8.RELEASE</version>
+      <version>4.3.12.RELEASE</version>
       <scope>test</scope>
     </dependency>
 
@@ -62,12 +62,6 @@
       <version>${activemq.version}</version>
       <scope>test</scope>
     </dependency>
-
-    <!--dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-activemq</artifactId>
-      <version>1.5.7.RELEASE</version>
-    </dependency-->
 
   </dependencies>
 </project>
