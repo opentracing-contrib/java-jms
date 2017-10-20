@@ -11,7 +11,7 @@ pom.xml
 <dependency>
     <groupId>io.opentracing.contrib</groupId>
     <artifactId>opentracing-jms-1</artifactId>
-    <version>0.0.3</version>
+    <version>0.0.4</version>
 </dependency>
 ```
 
@@ -21,7 +21,7 @@ pom.xml
 <dependency>
     <groupId>io.opentracing.contrib</groupId>
     <artifactId>opentracing-jms-2</artifactId>
-    <version>0.0.3</version>
+    <version>0.0.4</version>
 </dependency>
 ```
 
@@ -31,7 +31,7 @@ pom.xml
 <dependency>
     <groupId>io.opentracing.contrib</groupId>
     <artifactId>opentracing-jms-spring</artifactId>
-    <version>0.0.3</version>
+    <version>0.0.4</version>
 </dependency>
 ```
 You most likely need to exclude spring-jms dependency and add own (to avoid jar hell):
@@ -39,7 +39,7 @@ You most likely need to exclude spring-jms dependency and add own (to avoid jar 
 <dependency>
     <groupId>io.opentracing.contrib</groupId>
     <artifactId>opentracing-jms-spring</artifactId>
-    <version>0.0.3</version>
+    <version>0.0.4</version>
     <exclusions>
         <exclusion>
             <groupId>org.springframework</groupId>
