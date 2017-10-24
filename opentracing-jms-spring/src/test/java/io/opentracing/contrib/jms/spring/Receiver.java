@@ -17,6 +17,8 @@ import io.opentracing.ActiveSpan;
 import io.opentracing.mock.MockTracer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jms.annotation.JmsListener;
+import org.springframework.messaging.Message;
+import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -25,8 +27,14 @@ public class Receiver {
   @Autowired
   private MockTracer mockTracer;
 
-  @JmsListener(destination = "TEST.MSG")
-  public void onMessage(String message) {
+  @JmsListener(destination = "TEST.FIRST")
+  @SendTo("TEST.SECOND")
+  public String onMessageFirst(Message message) {
+    return message.getPayload().toString();
+  }
+
+  @JmsListener(destination = "TEST.SECOND")
+  public void onMessageSecond(String message) {
     System.out.println(message);
 
     try (ActiveSpan activeSpan = mockTracer.buildSpan("on message").startActive()) {

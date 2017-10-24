@@ -56,13 +56,27 @@ public class TracingJmsTemplateTest {
   }
 
   @Test
-  public void listener() throws Exception {
-    jmsTemplate.convertAndSend("TEST.MSG", "test");
+  public void oneListener() throws Exception {
+    jmsTemplate.convertAndSend("TEST.SECOND", "test");
 
     await().atMost(15, TimeUnit.SECONDS).until(reportedSpansSize(), equalTo(3));
 
     List<MockSpan> spans = mockTracer.finishedSpans();
     assertEquals(3, spans.size());
+
+    for (int i = 0; i < spans.size(); i++) {
+      assertEquals(spans.get(0).context().traceId(), spans.get(i).context().traceId());
+    }
+  }
+
+  @Test
+  public void twoListeners() throws Exception {
+    jmsTemplate.convertAndSend("TEST.FIRST", "test");
+
+    await().atMost(15, TimeUnit.SECONDS).until(reportedSpansSize(), equalTo(5));
+
+    List<MockSpan> spans = mockTracer.finishedSpans();
+    assertEquals(5, spans.size());
 
     for (int i = 0; i < spans.size(); i++) {
       assertEquals(spans.get(0).context().traceId(), spans.get(i).context().traceId());
