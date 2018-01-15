@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 The OpenTracing Authors
+ * Copyright 2017-2018 The OpenTracing Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -19,12 +19,12 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-import io.opentracing.ActiveSpan;
+import io.opentracing.Scope;
 import io.opentracing.SpanContext;
 import io.opentracing.mock.MockSpan;
 import io.opentracing.mock.MockTracer;
 import io.opentracing.tag.Tags;
-import io.opentracing.util.ThreadLocalActiveSpanSource;
+import io.opentracing.util.ThreadLocalScopeManager;
 import java.io.IOException;
 import javax.jms.Destination;
 import org.apache.activemq.command.ActiveMQQueue;
@@ -35,14 +35,13 @@ import org.junit.Test;
 
 public class TracingMessageUtilsTest {
 
-  private final MockTracer mockTracer = new MockTracer(new ThreadLocalActiveSpanSource(),
+  private final MockTracer mockTracer = new MockTracer(new ThreadLocalScopeManager(),
       MockTracer.Propagator.TEXT_MAP);
 
 
   @Before
   public void before() {
     mockTracer.reset();
-    ActiveSpan span = mockTracer.activeSpan();
   }
 
   @Test
@@ -54,7 +53,7 @@ public class TracingMessageUtilsTest {
   @Test
   public void extractContextFromManager() {
     MockSpan span = mockTracer.buildSpan("test").start();
-    mockTracer.makeActive(span);
+    mockTracer.scopeManager().activate(span, true);
     MockSpan.MockContext context = (MockSpan.MockContext) TracingMessageUtils
         .extract(new ActiveMQTextMessage(), mockTracer);
     assertNotNull(context);
@@ -75,8 +74,8 @@ public class TracingMessageUtilsTest {
   @Test
   public void buildAndFinishChildSpan() {
     MockSpan span = mockTracer.buildSpan("test").start();
-    mockTracer.makeActive(span);
-    ActiveSpan span2 = TracingMessageUtils
+    mockTracer.scopeManager().activate(span, true);
+    Scope span2 = TracingMessageUtils
         .buildAndFinishChildSpan(new ActiveMQTextMessage(), mockTracer);
     assertNotNull(span2);
 
@@ -109,7 +108,7 @@ public class TracingMessageUtilsTest {
 
     ActiveMQTextMessage message = new ActiveMQTextMessage();
     MockSpan span = mockTracer.buildSpan("test").start();
-    mockTracer.makeActive(span);
+    mockTracer.scopeManager().activate(span, true);
 
     MockSpan injected = (MockSpan) TracingMessageUtils
         .buildAndInjectSpan(destination, message, mockTracer);

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 The OpenTracing Authors
+ * Copyright 2017-2018 The OpenTracing Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -13,7 +13,6 @@
  */
 package io.opentracing.contrib.jms.common;
 
-import io.opentracing.ActiveSpan;
 import io.opentracing.Span;
 import io.opentracing.tag.Tags;
 import java.io.PrintWriter;
@@ -47,7 +46,7 @@ public class SpanJmsDecorator {
    * @param message message
    * @param span span
    */
-  public static void onResponse(Message message, ActiveSpan span) {
+  public static void onResponse(Message message, Span span) {
     Tags.COMPONENT.set(span, TracingMessageUtils.COMPONENT_NAME);
   }
 

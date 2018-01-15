@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 The OpenTracing Authors
+ * Copyright 2017-2018 The OpenTracing Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
 package io.opentracing.contrib.jms.common;
 
 
-import io.opentracing.ActiveSpan;
+import io.opentracing.Scope;
 import io.opentracing.Tracer;
 import javax.jms.Message;
 import javax.jms.MessageListener;
@@ -34,15 +34,15 @@ public class TracingMessageListener implements MessageListener {
 
   @Override
   public void onMessage(Message message) {
-    ActiveSpan span = TracingMessageUtils.buildFollowingSpan(message, tracer);
+    Scope scope = TracingMessageUtils.buildFollowingSpan(message, tracer);
 
     try {
       if (messageListener != null) {
         messageListener.onMessage(message);
       }
     } finally {
-      if (span != null) {
-        span.close();
+      if (scope != null) {
+        scope.close();
       }
     }
 

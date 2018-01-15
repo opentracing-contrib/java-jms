@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 The OpenTracing Authors
+ * Copyright 2017-2018 The OpenTracing Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -13,7 +13,7 @@
  */
 package io.opentracing.contrib.jms.spring;
 
-import io.opentracing.ActiveSpan;
+import io.opentracing.Scope;
 import io.opentracing.mock.MockTracer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jms.annotation.JmsListener;
@@ -37,8 +37,8 @@ public class Receiver {
   public void onMessageSecond(String message) {
     System.out.println(message);
 
-    try (ActiveSpan activeSpan = mockTracer.buildSpan("on message").startActive()) {
-      activeSpan.setTag("test", "test");
+    try (Scope scope = mockTracer.buildSpan("on message").startActive(true)) {
+      scope.span().setTag("test", "test");
     }
   }
 }
