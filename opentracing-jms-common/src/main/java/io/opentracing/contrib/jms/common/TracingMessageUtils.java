@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 The OpenTracing Authors
+ * Copyright 2017-2018 The OpenTracing Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -14,15 +14,14 @@
 package io.opentracing.contrib.jms.common;
 
 
-import io.opentracing.ActiveSpan;
 import io.opentracing.References;
+import io.opentracing.Scope;
 import io.opentracing.Span;
 import io.opentracing.SpanContext;
 import io.opentracing.Tracer;
 import io.opentracing.propagation.Format;
 import io.opentracing.tag.Tags;
 import javax.jms.Destination;
-import javax.jms.JMSException;
 import javax.jms.Message;
 
 public class TracingMessageUtils {
@@ -38,9 +37,9 @@ public class TracingMessageUtils {
    * @param tracer Tracer
    * @return child span
    */
-  public static ActiveSpan buildAndFinishChildSpan(Message message, Tracer tracer) {
+  public static Scope buildAndFinishChildSpan(Message message, Tracer tracer) {
 
-    ActiveSpan child = buildFollowingSpan(message, tracer);
+    Scope child = buildFollowingSpan(message, tracer);
     if (child != null) {
       child.close();
     }
@@ -50,7 +49,7 @@ public class TracingMessageUtils {
   /**
    * It is used by consumers only
    */
-  static ActiveSpan buildFollowingSpan(Message message, Tracer tracer) {
+  static Scope buildFollowingSpan(Message message, Tracer tracer) {
     SpanContext context = extract(message, tracer);
 
     if (context != null) {
@@ -61,11 +60,11 @@ public class TracingMessageUtils {
 
       spanBuilder.addReference(References.FOLLOWS_FROM, context);
 
-      ActiveSpan span = spanBuilder.startActive();
+      Scope scope = spanBuilder.startActive(true);
 
-      SpanJmsDecorator.onResponse(message, span);
+      SpanJmsDecorator.onResponse(message, scope.span());
 
-      return span;
+      return scope;
     }
 
     return null;
@@ -85,7 +84,7 @@ public class TracingMessageUtils {
       return spanContext;
     }
 
-    ActiveSpan span = tracer.activeSpan();
+    Span span = tracer.activeSpan();
     if (span != null) {
       return span.context();
     }
@@ -109,8 +108,7 @@ public class TracingMessageUtils {
    * @return span
    */
   public static Span buildAndInjectSpan(Destination destination, final Message message,
-      Tracer tracer)
-      throws JMSException {
+      Tracer tracer) {
     Tracer.SpanBuilder spanBuilder = tracer.buildSpan(TracingMessageUtils.OPERATION_NAME_SEND)
         .ignoreActiveSpan()
         .withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_PRODUCER);
@@ -121,7 +119,7 @@ public class TracingMessageUtils {
       spanBuilder.asChildOf(parent);
     }
 
-    Span span = spanBuilder.startManual();
+    Span span = spanBuilder.start();
 
     SpanJmsDecorator.onRequest(destination, span);
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 The OpenTracing Authors
+ * Copyright 2017-2018 The OpenTracing Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -26,8 +26,7 @@ import io.opentracing.contrib.jms.common.TracingMessageUtils;
 import io.opentracing.mock.MockSpan;
 import io.opentracing.mock.MockTracer;
 import io.opentracing.tag.Tags;
-import io.opentracing.util.ThreadLocalActiveSpanSource;
-import java.io.IOException;
+import io.opentracing.util.ThreadLocalScopeManager;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
@@ -49,13 +48,13 @@ import org.junit.Test;
 
 public class TracingActiveMQTest {
 
-  private final MockTracer mockTracer = new MockTracer(new ThreadLocalActiveSpanSource(),
+  private final MockTracer mockTracer = new MockTracer(new ThreadLocalScopeManager(),
       MockTracer.Propagator.TEXT_MAP);
   private Session session;
   private Connection connection;
 
   @Before
-  public void before() throws IOException, JMSException {
+  public void before() throws Exception {
     mockTracer.reset();
 
     ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory("vm://localhost");
