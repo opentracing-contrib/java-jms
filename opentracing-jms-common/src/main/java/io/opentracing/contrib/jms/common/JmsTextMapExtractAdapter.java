@@ -30,7 +30,7 @@ public class JmsTextMapExtractAdapter implements TextMap {
   private final Map<String, String> map = new HashMap<>();
 
   public JmsTextMapExtractAdapter(Message message) {
-    if(message == null) {
+    if (message == null) {
       return;
     }
     try {

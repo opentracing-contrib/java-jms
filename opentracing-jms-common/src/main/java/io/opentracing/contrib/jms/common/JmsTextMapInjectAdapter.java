@@ -38,7 +38,7 @@ public class JmsTextMapInjectAdapter implements TextMap {
 
   @Override
   public void put(String key, String value) {
-    if(message == null) {
+    if (message == null) {
       return;
     }
     try {
