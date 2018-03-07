@@ -30,6 +30,9 @@ public class JmsTextMapExtractAdapter implements TextMap {
   private final Map<String, String> map = new HashMap<>();
 
   public JmsTextMapExtractAdapter(Message message) {
+    if(message == null) {
+      return;
+    }
     try {
       Enumeration enumeration = message.getPropertyNames();
       if (enumeration != null) {

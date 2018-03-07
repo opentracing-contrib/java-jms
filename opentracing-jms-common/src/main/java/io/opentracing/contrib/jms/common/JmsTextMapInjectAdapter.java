@@ -38,6 +38,9 @@ public class JmsTextMapInjectAdapter implements TextMap {
 
   @Override
   public void put(String key, String value) {
+    if(message == null) {
+      return;
+    }
     try {
       message.setStringProperty(encodeDash(key), value);
     } catch (JMSException e) {
