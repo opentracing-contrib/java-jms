@@ -34,7 +34,7 @@ pom.xml
     <version>VERSION</version>
 </dependency>
 ```
-You most likely need to exclude spring-jms dependency and add own (to avoid jar hell):
+You most likely need to exclude spring-jms and spring-context dependencies and add own (to avoid jar hell):
 ```xml
 <dependency>
     <groupId>io.opentracing.contrib</groupId>
@@ -45,6 +45,10 @@ You most likely need to exclude spring-jms dependency and add own (to avoid jar 
             <groupId>org.springframework</groupId>
             <artifactId>spring-jms</artifactId>
         </exclusion>
+        <exclusion>
+             <groupId>org.springframework</groupId>
+             <artifactId>spring-context</artifactId>
+        </exclusion>
     </exclusions>
 </dependency>
 
@@ -54,6 +58,11 @@ You most likely need to exclude spring-jms dependency and add own (to avoid jar 
     <version>required version</version>
 </dependency>
 
+<dependency>
+    <groupId>org.springframework</groupId>
+    <artifactId>spring-context</artifactId>
+    <version>required version</version>
+</dependency>
 ```
 
 ## Usage
