@@ -23,7 +23,7 @@
   </parent>
 
   <artifactId>opentracing-jms-common</artifactId>
-  <name>${project.groupId}:${project.artifactId}</name>
+  <name>OpenTracing JMS Commons</name>
   <description>OpenTracing JMS Commons</description>
 
   <dependencies>

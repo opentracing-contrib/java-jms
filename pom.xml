@@ -22,7 +22,7 @@
   <version>0.0.7-SNAPSHOT</version>
   <packaging>pom</packaging>
 
-  <name>${project.groupId}:${project.artifactId}</name>
+  <name>OpenTracing Instrumentation for JMS API</name>
   <description>OpenTracing Instrumentation for JMS API</description>
   <url>https://github.com/opentracing-contrib/java-jms</url>
   <inceptionYear>2017-2018</inceptionYear>
@@ -62,7 +62,8 @@
     <project.build.resourceEncoding>UTF-8</project.build.resourceEncoding>
 
     <opentracing.version>0.31.0</opentracing.version>
-    <activemq.version>5.15.2</activemq.version>
+    <activemq.version>5.15.3</activemq.version>
+    <maven-jar-plugin.version>3.0.2</maven-jar-plugin.version>
   </properties>
 
   <modules>
@@ -90,7 +91,7 @@
       <dependency>
         <groupId>org.awaitility</groupId>
         <artifactId>awaitility</artifactId>
-        <version>3.0.0</version>
+        <version>3.1.0</version>
       </dependency>
 
       <dependency>
