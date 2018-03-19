@@ -108,6 +108,13 @@ public class JmsConfiguration {
 }
 ```
 
+### Java 9+
+
+Modules _opentracing-jms-1_ and _opentracing-jms-2_ have next _Automatic-Module-Name_ accordingly:
+- io.opentracing.contrib.jms1
+- io.opentracing.contrib.jms2
+
+
 [ci-img]: https://travis-ci.org/opentracing-contrib/java-jms.svg?branch=master
 [ci]: https://travis-ci.org/opentracing-contrib/java-jms
 [maven-img]: https://img.shields.io/maven-central/v/io.opentracing.contrib/opentracing-jms-1.svg

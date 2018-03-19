@@ -23,8 +23,12 @@
   </parent>
 
   <artifactId>opentracing-jms-spring</artifactId>
-  <name>${project.groupId}:${project.artifactId}</name>
+  <name>OpenTracing Instrumentation for Spring JMS API</name>
   <description>OpenTracing Instrumentation for Spring JMS API</description>
+
+  <properties>
+    <spring.version>5.0.4.RELEASE</spring.version>
+  </properties>
 
   <dependencies>
 
@@ -37,13 +41,19 @@
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-jms</artifactId>
-      <version>4.3.13.RELEASE</version>
+      <version>${spring.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-context</artifactId>
+      <version>${spring.version}</version>
     </dependency>
 
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-test</artifactId>
-      <version>4.3.13.RELEASE</version>
+      <version>${spring.version}</version>
       <scope>test</scope>
     </dependency>
 
