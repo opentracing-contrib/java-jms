@@ -1,4 +1,4 @@
-[![Build Status][ci-img]][ci] [![Released Version][maven-img]][maven]
+[![Build Status][ci-img]][ci] [![Coverage Status][cov-img]][cov] [![Released Version][maven-img]][maven]
 
 # OpenTracing JMS Instrumentation
 OpenTracing instrumentation for JMS.
@@ -126,5 +126,7 @@ Modules _opentracing-jms-1_ and _opentracing-jms-2_ have next _Automatic-Module-
 
 [ci-img]: https://travis-ci.org/opentracing-contrib/java-jms.svg?branch=master
 [ci]: https://travis-ci.org/opentracing-contrib/java-jms
+[cov-img]: https://coveralls.io/repos/github/opentracing-contrib/java-jms/badge.svg?branch=master
+[cov]: https://coveralls.io/github/opentracing-contrib/java-jms?branch=master
 [maven-img]: https://img.shields.io/maven-central/v/io.opentracing.contrib/opentracing-jms-1.svg
 [maven]: http://search.maven.org/#search%7Cga%7C1%7Copentracing-jms-1
