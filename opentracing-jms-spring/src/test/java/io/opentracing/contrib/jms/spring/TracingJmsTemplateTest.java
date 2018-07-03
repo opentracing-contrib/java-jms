@@ -16,6 +16,7 @@ package io.opentracing.contrib.jms.spring;
 import static org.awaitility.Awaitility.await;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
@@ -39,6 +40,7 @@ import org.springframework.jms.core.JmsTemplate;
 import org.springframework.jms.core.MessageCreator;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.jms.support.converter.MappingJackson2MessageConverter;
 
 @RunWith(SpringRunner.class)
 @ContextConfiguration(classes = {TracingJmsConfiguration.class, TestConfiguration.class})
@@ -53,6 +55,11 @@ public class TracingJmsTemplateTest {
   @Before
   public void before() throws IOException, JMSException {
     mockTracer.reset();
+  }
+
+  @Test
+  public void messageConverterConfigured() {
+    assertTrue(jmsTemplate.getMessageConverter() instanceof MappingJackson2MessageConverter);
   }
 
   @Test
