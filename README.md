@@ -123,6 +123,9 @@ Modules _opentracing-jms-1_ and _opentracing-jms-2_ have next _Automatic-Module-
 - io.opentracing.contrib.jms1
 - io.opentracing.contrib.jms2
 
+## License
+
+[Apache 2.0 License](./LICENSE).
 
 [ci-img]: https://travis-ci.org/opentracing-contrib/java-jms.svg?branch=master
 [ci]: https://travis-ci.org/opentracing-contrib/java-jms
