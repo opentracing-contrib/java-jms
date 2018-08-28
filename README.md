@@ -78,6 +78,9 @@ Tracer tracer = ...
 // decorate JMS MessageProducer with TracingMessageProducer
 TracingMessageProducer producer = new TracingMessageProducer(messageProducer, tracer);
 
+// decorate JMS JMSProducer with TracingJMSProducer
+TracingJMSProducer producer = new TracingJMSProducer(jmsProducer, tracer);
+
 // decorate JMS MessageConsumer with TracingMessageConsumer
 TracingMessageConsumer consumer = new TracingMessageConsumer(messageConsumer, tracer);
 
