@@ -52,6 +52,7 @@ public class TracingArtemisTest {
   private ActiveMQServer server;
   private Connection connection;
   private Session session;
+  private JMSContext jmsContext;
 
 
   @Before
@@ -75,11 +76,14 @@ public class TracingArtemisTest {
 
     connection.start();
 
+    jmsContext = connectionFactory.createContext();
+
     session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
   }
 
   @After
   public void after() throws Exception {
+    jmsContext.close();
     session.close();
     connection.close();
     server.stop();
@@ -114,6 +118,47 @@ public class TracingArtemisTest {
     checkSpans(mockSpans);
     assertNull(mockTracer.activeSpan());
   }
+
+    @Test
+    public void sendAndReceiveJMSProducer() throws Exception {
+        Destination destination = session.createQueue("TEST.FOO");
+
+        JMSProducer jmsProducer =  jmsContext.createProducer();
+
+        // Instrument MessageProducer with TracingMessageProducer
+        TracingJMSProducer producer =
+                new TracingJMSProducer(jmsProducer, session, mockTracer);
+
+        MessageConsumer messageConsumer = session.createConsumer(destination);
+
+        final CountDownLatch countDownLatch = new CountDownLatch(1);
+        // Instrument MessgaeListener with TraceMessageListener
+        MessageListener messageListener = new TracingMessageListener(
+                new MessageListener() {
+                    @Override
+                    public void onMessage(Message message) {
+                        countDownLatch.countDown();
+                    }
+                }, mockTracer);
+
+        messageConsumer.setMessageListener(messageListener);
+
+        TextMessage message = session.createTextMessage("Hello world");
+
+        // Instrument MessageConsumer with TracingMessageConsumer
+        TracingMessageConsumer consumer = new TracingMessageConsumer(messageConsumer, mockTracer);
+
+        producer.send(destination, message);
+
+        TextMessage received = (TextMessage) consumer.receive(5000);
+        assertEquals("Hello world", received.getText());
+
+        List<MockSpan> mockSpans = mockTracer.finishedSpans();
+        assertEquals(2, mockSpans.size());
+
+        checkSpans(mockSpans);
+        assertNull(mockTracer.activeSpan());
+    }
 
   @Test
   public void sendAndReceiveInListener() throws Exception {
