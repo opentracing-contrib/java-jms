@@ -22,7 +22,17 @@ import java.io.Serializable;
 import java.util.Map;
 import java.util.Set;
 
-import javax.jms.*;
+import javax.jms.JMSProducer;
+import javax.jms.JMSContext;
+import javax.jms.Session;
+import javax.jms.Destination;
+import javax.jms.MapMessage;
+import javax.jms.TextMessage;
+import javax.jms.ObjectMessage;
+import javax.jms.BytesMessage;
+import javax.jms.Message;
+import javax.jms.JMSException;
+import javax.jms.CompletionListener;
 
 
 /**
