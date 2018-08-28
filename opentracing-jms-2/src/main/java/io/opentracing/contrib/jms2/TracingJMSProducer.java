@@ -22,21 +22,28 @@ import java.io.Serializable;
 import java.util.Map;
 import java.util.Set;
 
-import javax.jms.CompletionListener;
-import javax.jms.Destination;
-import javax.jms.JMSProducer;
-import javax.jms.Message;
+import javax.jms.*;
 
-import java.lang.UnsupportedOperationException;
 
+/**
+ * Tracing decorator for JMS JMSProducer
+ */
 public class TracingJMSProducer implements JMSProducer {
 
-
     private final JMSProducer jmsProducer;
+    private JMSContext jmsContext = null;
+    private Session jmsSession = null;
     private final Tracer tracer;
 
-    public TracingJMSProducer(JMSProducer jmsProducer, Tracer tracer) {
+    public TracingJMSProducer(JMSProducer jmsProducer, JMSContext jmsContext, Tracer tracer) {
         this.jmsProducer = jmsProducer;
+        this.jmsContext = jmsContext;
+        this.tracer = tracer;
+    }
+
+    public TracingJMSProducer(JMSProducer jmsProducer, Session jmsSession, Tracer tracer) {
+        this.jmsProducer = jmsProducer;
+        this.jmsSession = jmsSession;
         this.tracer = tracer;
     }
 
@@ -172,26 +179,125 @@ public class TracingJMSProducer implements JMSProducer {
 
     @Override
     public JMSProducer send(Destination destination, String message) {
-        throw new UnsupportedOperationException(
-                "This send is not implemented yet");
+        TextMessage textMsg = null;
+        try {
+            textMsg = getTextMessage();
+            textMsg.setText(message);
+        } catch (JMSException e) {
+            e.printStackTrace();
+        }
+        return send(destination, textMsg);
+    }
+
+    private TextMessage getTextMessage() throws JMSException{
+        TextMessage textMsg = null;
+        if(jmsContext != null) {
+            textMsg = jmsContext.createTextMessage();
+        }
+        else if (jmsSession != null){
+            textMsg = jmsSession.createTextMessage();
+        }
+        return textMsg;
     }
 
     @Override
     public JMSProducer send(Destination destination, Map<String, Object> arg1) {
-        throw new UnsupportedOperationException(
-                "This send is not implemented yet");
+        MapMessage mapMsg = null;
+        try {
+            mapMsg = getMapMessage();
+        } catch (JMSException e) {
+            e.printStackTrace();
+        }
+        for(Map.Entry<String, Object> entry : arg1.entrySet()) {
+            try {
+                mapMsg.setObject(entry.getKey(), entry.getValue());
+            } catch (JMSException e) {
+                e.printStackTrace();
+            }
+        }
+        return send(destination, mapMsg);
+    }
+
+    private MapMessage getMapMessage() throws JMSException{
+        MapMessage mapMsg = null;
+        if(jmsContext != null) {
+            mapMsg = jmsContext.createMapMessage();
+        }
+        else if(jmsSession != null) {
+            try {
+                mapMsg = jmsSession.createMapMessage();
+            } catch (JMSException e) {
+                e.printStackTrace();
+            }
+        }
+        return mapMsg;
     }
 
     @Override
     public JMSProducer send(Destination destination, byte[] arg1) {
-        throw new UnsupportedOperationException(
-                "This send is not implemented yet");
+        BytesMessage message = null;
+        try {
+            message = getBytesMessage();
+            ((BytesMessage) message).writeBytes(arg1);
+        } catch (JMSException e) {
+            e.printStackTrace();
+        }
+        return send(destination, message);
+    }
+
+    private BytesMessage getBytesMessage() throws JMSException{
+        BytesMessage bytesMsg = null;
+        if(jmsContext != null) {
+            bytesMsg = jmsContext.createBytesMessage();
+        }
+        else if(jmsSession != null) {
+            try {
+                bytesMsg = jmsSession.createBytesMessage();
+            } catch (JMSException e) {
+                e.printStackTrace();
+            }
+        }
+        return bytesMsg;
     }
 
     @Override
-    public JMSProducer send(Destination destination, Serializable arg1) {
-        throw new UnsupportedOperationException(
-                "This send is not implemented yet");
+    public JMSProducer send(Destination destination, Serializable obj){
+
+        Message message = null;
+        try {
+            message = createJMSMessage(obj);
+        } catch (JMSException e) {
+            e.printStackTrace();
+        }
+        return send(destination, message);
+    }
+
+    private Message createJMSMessage(Serializable obj)
+            throws JMSException {
+        if (obj instanceof String) {
+            TextMessage textMsg = getTextMessage();
+            textMsg.setText((String) obj);
+            return textMsg;
+        } else {
+            ObjectMessage objMsg = getObjectMessage();
+            objMsg.setObject(obj);
+            return objMsg;
+        }
+    }
+
+    private ObjectMessage getObjectMessage() throws JMSException{
+        ObjectMessage objectMsg = null;
+        if(jmsContext != null) {
+            objectMsg = jmsContext.createObjectMessage();
+        }
+        else if(jmsSession != null) {
+            try {
+                objectMsg = jmsSession.createObjectMessage();
+            } catch (JMSException e) {
+                e.printStackTrace();
+            }
+        }
+        return objectMsg;
     }
 
     @Override
