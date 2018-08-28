@@ -131,18 +131,6 @@ public class TracingArtemisTest {
 
         MessageConsumer messageConsumer = session.createConsumer(destination);
 
-        final CountDownLatch countDownLatch = new CountDownLatch(1);
-        // Instrument MessgaeListener with TraceMessageListener
-        MessageListener messageListener = new TracingMessageListener(
-                new MessageListener() {
-                    @Override
-                    public void onMessage(Message message) {
-                        countDownLatch.countDown();
-                    }
-                }, mockTracer);
-
-        messageConsumer.setMessageListener(messageListener);
-
         TextMessage message = session.createTextMessage("Hello world");
 
         // Instrument MessageConsumer with TracingMessageConsumer
