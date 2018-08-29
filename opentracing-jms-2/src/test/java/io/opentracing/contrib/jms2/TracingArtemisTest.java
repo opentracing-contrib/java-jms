@@ -32,15 +32,18 @@ import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
-import javax.jms.Connection;
+import javax.jms.JMSProducer;
+import javax.jms.JMSContext;
+import javax.jms.Session;
 import javax.jms.Destination;
-import javax.jms.Message;
+import javax.jms.MessageProducer;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageListener;
-import javax.jms.MessageProducer;
 import javax.jms.Queue;
-import javax.jms.Session;
+import javax.jms.Connection;
 import javax.jms.TextMessage;
+import javax.jms.Message;
+
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.core.config.impl.ConfigurationImpl;
 import org.apache.activemq.artemis.core.remoting.impl.invm.InVMAcceptorFactory;
@@ -59,6 +62,7 @@ public class TracingArtemisTest {
   private ActiveMQServer server;
   private Connection connection;
   private Session session;
+  private JMSContext jmsContext;
 
 
   @Before
@@ -82,11 +86,14 @@ public class TracingArtemisTest {
 
     connection.start();
 
+    jmsContext = connectionFactory.createContext();
+
     session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
   }
 
   @After
   public void after() throws Exception {
+    jmsContext.close();
     session.close();
     connection.close();
     server.stop();
@@ -121,6 +128,35 @@ public class TracingArtemisTest {
     checkSpans(mockSpans);
     assertNull(mockTracer.activeSpan());
   }
+
+    @Test
+    public void sendAndReceiveJMSProducer() throws Exception {
+        Destination destination = session.createQueue("TEST.FOO");
+
+        JMSProducer jmsProducer =  jmsContext.createProducer();
+
+        // Instrument MessageProducer with TracingMessageProducer
+        TracingJMSProducer producer =
+                new TracingJMSProducer(jmsProducer, session, mockTracer);
+
+        MessageConsumer messageConsumer = session.createConsumer(destination);
+
+        TextMessage message = session.createTextMessage("Hello world");
+
+        // Instrument MessageConsumer with TracingMessageConsumer
+        TracingMessageConsumer consumer = new TracingMessageConsumer(messageConsumer, mockTracer);
+
+        producer.send(destination, message);
+
+        TextMessage received = (TextMessage) consumer.receive(5000);
+        assertEquals("Hello world", received.getText());
+
+        List<MockSpan> mockSpans = mockTracer.finishedSpans();
+        assertEquals(2, mockSpans.size());
+
+        checkSpans(mockSpans);
+        assertNull(mockTracer.activeSpan());
+    }
 
   @Test
   public void sendAndReceiveInListener() throws Exception {

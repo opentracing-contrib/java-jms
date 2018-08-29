@@ -78,6 +78,13 @@ Tracer tracer = ...
 // decorate JMS MessageProducer with TracingMessageProducer
 TracingMessageProducer producer = new TracingMessageProducer(messageProducer, tracer);
 
+// decorate JMS JMSProducer with TracingJMSProducer need Session
+Session session = ...
+TracingJMSProducer producer = new TracingJMSProducer(jmsProducer, session, tracer);
+// or with JMSContext
+JMSContext jmsContext = ...
+TracingJMSProducer producer = new TracingJMSProducer(jmsProducer, jmsContext, tracer);
+
 // decorate JMS MessageConsumer with TracingMessageConsumer
 TracingMessageConsumer consumer = new TracingMessageConsumer(messageConsumer, tracer);
 
