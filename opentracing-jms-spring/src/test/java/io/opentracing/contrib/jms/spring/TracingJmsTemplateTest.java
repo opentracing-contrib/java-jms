@@ -16,7 +16,6 @@ package io.opentracing.contrib.jms.spring;
 import static org.awaitility.Awaitility.await;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
@@ -24,7 +23,6 @@ import io.opentracing.contrib.jms.common.TracingMessageUtils;
 import io.opentracing.mock.MockSpan;
 import io.opentracing.mock.MockTracer;
 import io.opentracing.tag.Tags;
-import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
@@ -38,9 +36,9 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.jms.core.MessageCreator;
+import org.springframework.jms.support.converter.MappingJackson2MessageConverter;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.jms.support.converter.MappingJackson2MessageConverter;
 
 @RunWith(SpringRunner.class)
 @ContextConfiguration(classes = {TracingJmsConfiguration.class, TestConfiguration.class})
@@ -53,7 +51,7 @@ public class TracingJmsTemplateTest {
   private MockTracer mockTracer;
 
   @Before
-  public void before() throws IOException, JMSException {
+  public void before() {
     mockTracer.reset();
   }
 
@@ -63,7 +61,7 @@ public class TracingJmsTemplateTest {
   }
 
   @Test
-  public void oneListener() throws Exception {
+  public void oneListener() {
     jmsTemplate.convertAndSend("TEST.SECOND", "test");
 
     await().atMost(15, TimeUnit.SECONDS).until(reportedSpansSize(), equalTo(3));
@@ -71,13 +69,13 @@ public class TracingJmsTemplateTest {
     List<MockSpan> spans = mockTracer.finishedSpans();
     assertEquals(3, spans.size());
 
-    for (int i = 0; i < spans.size(); i++) {
-      assertEquals(spans.get(0).context().traceId(), spans.get(i).context().traceId());
+    for (MockSpan span : spans) {
+      assertEquals(spans.get(0).context().traceId(), span.context().traceId());
     }
   }
 
   @Test
-  public void twoListeners() throws Exception {
+  public void twoListeners() {
     jmsTemplate.convertAndSend("TEST.FIRST", "test");
 
     await().atMost(15, TimeUnit.SECONDS).until(reportedSpansSize(), equalTo(5));
@@ -85,25 +83,27 @@ public class TracingJmsTemplateTest {
     List<MockSpan> spans = mockTracer.finishedSpans();
     assertEquals(5, spans.size());
 
-    for (int i = 0; i < spans.size(); i++) {
-      assertEquals(spans.get(0).context().traceId(), spans.get(i).context().traceId());
+    for (MockSpan span : spans) {
+      assertEquals(spans.get(0).context().traceId(), span.context().traceId());
     }
   }
 
   @Test
   public void sendAndReceive() throws Exception {
-    jmsTemplate.send("TEST.FOO", new MessageCreator() {
+    String destionation = "TEST.DEST";
+
+    jmsTemplate.send(destionation, new MessageCreator() {
       @Override
       public Message createMessage(Session session) throws JMSException {
         return session.createTextMessage("Hello world");
       }
     });
 
-    TextMessage received = (TextMessage) jmsTemplate.receive("TEST.FOO");
+    TextMessage received = (TextMessage) jmsTemplate.receive(destionation);
     assertEquals("Hello world", received.getText());
 
-    jmsTemplate.convertAndSend("TEST.FOO", "Hello world");
-    assertEquals("Hello world", jmsTemplate.receiveAndConvert("TEST.FOO"));
+    jmsTemplate.convertAndSend(destionation, "Hello world");
+    assertEquals("Hello world", jmsTemplate.receiveAndConvert(destionation));
 
     List<MockSpan> mockSpans = mockTracer.finishedSpans();
     assertEquals(4, mockSpans.size());
@@ -129,7 +129,7 @@ public class TracingJmsTemplateTest {
   private Callable<Integer> reportedSpansSize() {
     return new Callable<Integer>() {
       @Override
-      public Integer call() throws Exception {
+      public Integer call() {
         return mockTracer.finishedSpans().size();
       }
     };

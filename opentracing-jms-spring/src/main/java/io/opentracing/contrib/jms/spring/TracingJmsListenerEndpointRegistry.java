@@ -45,7 +45,6 @@ public class TracingJmsListenerEndpointRegistry extends JmsListenerEndpointRegis
     this.tracer = tracer;
   }
 
-
   @Override
   public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
     this.beanFactory = beanFactory;

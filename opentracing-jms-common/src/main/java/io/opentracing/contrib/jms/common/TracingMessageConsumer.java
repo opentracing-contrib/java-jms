@@ -14,6 +14,7 @@
 package io.opentracing.contrib.jms.common;
 
 import io.opentracing.Tracer;
+import io.opentracing.util.GlobalTracer;
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
@@ -26,6 +27,13 @@ public class TracingMessageConsumer implements MessageConsumer {
 
   private final MessageConsumer messageConsumer;
   private final Tracer tracer;
+
+  /**
+   * GlobalTracer is used to get tracer
+   */
+  public TracingMessageConsumer(MessageConsumer messageConsumer) {
+    this(messageConsumer, GlobalTracer.get());
+  }
 
   public TracingMessageConsumer(MessageConsumer messageConsumer, Tracer tracer) {
     this.messageConsumer = messageConsumer;

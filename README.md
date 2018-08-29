@@ -71,6 +71,8 @@ You most likely need to exclude spring-jms and spring-context dependencies and a
 // Instantiate tracer
 Tracer tracer = ...
 
+// Optionally register tracer with GlobalTracer:
+GlobalTracer.register(tracer);
 ```
 
 ### JMS API
