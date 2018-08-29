@@ -32,7 +32,17 @@ import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
-import javax.jms.*;
+import javax.jms.JMSProducer;
+import javax.jms.JMSContext;
+import javax.jms.Session;
+import javax.jms.Destination;
+import javax.jms.MessageProducer;
+import javax.jms.MessageConsumer;
+import javax.jms.MessageListener;
+import javax.jms.Queue;
+import javax.jms.Connection;
+import javax.jms.TextMessage;
+import javax.jms.Message;
 
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.core.config.impl.ConfigurationImpl;

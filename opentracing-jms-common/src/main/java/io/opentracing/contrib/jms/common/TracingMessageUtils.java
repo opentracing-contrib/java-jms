@@ -49,7 +49,7 @@ public class TracingMessageUtils {
   /**
    * It is used by consumers only
    */
-  static public Scope buildFollowingSpan(Message message, Tracer tracer) {
+  public static Scope buildFollowingSpan(Message message, Tracer tracer) {
     SpanContext context = extract(message, tracer);
 
     if (context != null) {

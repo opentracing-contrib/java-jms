@@ -192,9 +192,16 @@ public class TracingJMSProducer implements JMSProducer {
         TextMessage textMsg = null;
         try {
             textMsg = getTextMessage();
+            // if textMsg is null, conversion failed
+            if(textMsg == null){
+                jmsProducer.send(destination, message);
+                return this;
+            }
             textMsg.setText(message);
         } catch (JMSException e) {
             e.printStackTrace();
+            jmsProducer.send(destination, message);
+            return this;
         }
         return send(destination, textMsg);
     }
@@ -217,12 +224,22 @@ public class TracingJMSProducer implements JMSProducer {
             mapMsg = getMapMessage();
         } catch (JMSException e) {
             e.printStackTrace();
+            jmsProducer.send(destination, arg1);
+            return this;
         }
+        // if mapMsg is null, conversion failed
+        if(mapMsg == null){
+            jmsProducer.send(destination, arg1);
+            return this;
+        }
+
         for(Map.Entry<String, Object> entry : arg1.entrySet()) {
             try {
                 mapMsg.setObject(entry.getKey(), entry.getValue());
             } catch (JMSException e) {
                 e.printStackTrace();
+                jmsProducer.send(destination, arg1);
+                return this;
             }
         }
         return send(destination, mapMsg);
@@ -234,25 +251,28 @@ public class TracingJMSProducer implements JMSProducer {
             mapMsg = jmsContext.createMapMessage();
         }
         else if(jmsSession != null) {
-            try {
-                mapMsg = jmsSession.createMapMessage();
-            } catch (JMSException e) {
-                e.printStackTrace();
-            }
+            mapMsg = jmsSession.createMapMessage();
         }
         return mapMsg;
     }
 
     @Override
     public JMSProducer send(Destination destination, byte[] arg1) {
-        BytesMessage message = null;
+        BytesMessage bytesMsg = null;
         try {
-            message = getBytesMessage();
-            ((BytesMessage) message).writeBytes(arg1);
+            bytesMsg = getBytesMessage();
+            // if bytesMsg is null, conversion failed
+            if(bytesMsg == null){
+                jmsProducer.send(destination, arg1);
+                return this;
+            }
+            ((BytesMessage) bytesMsg).writeBytes(arg1);
         } catch (JMSException e) {
             e.printStackTrace();
+            jmsProducer.send(destination, arg1);
+            return this;
         }
-        return send(destination, message);
+        return send(destination, bytesMsg);
     }
 
     private BytesMessage getBytesMessage() throws JMSException{
@@ -261,11 +281,7 @@ public class TracingJMSProducer implements JMSProducer {
             bytesMsg = jmsContext.createBytesMessage();
         }
         else if(jmsSession != null) {
-            try {
-                bytesMsg = jmsSession.createBytesMessage();
-            } catch (JMSException e) {
-                e.printStackTrace();
-            }
+            bytesMsg = jmsSession.createBytesMessage();
         }
         return bytesMsg;
     }
@@ -276,8 +292,15 @@ public class TracingJMSProducer implements JMSProducer {
         Message message = null;
         try {
             message = createJMSMessage(obj);
+            if(message == null){
+                // if message is null, conversion failed
+                jmsProducer.send(destination, obj);
+                return this;
+            }
         } catch (JMSException e) {
             e.printStackTrace();
+            jmsProducer.send(destination, obj);
+            return this;
         }
         return send(destination, message);
     }
@@ -286,10 +309,17 @@ public class TracingJMSProducer implements JMSProducer {
             throws JMSException {
         if (obj instanceof String) {
             TextMessage textMsg = getTextMessage();
+            // if textMsg is null, conversion failed
+            if(textMsg == null){
+                return null;
+            }
             textMsg.setText((String) obj);
             return textMsg;
         } else {
             ObjectMessage objMsg = getObjectMessage();
+            if(objMsg == null){
+                return null;
+            }
             objMsg.setObject(obj);
             return objMsg;
         }
@@ -301,11 +331,7 @@ public class TracingJMSProducer implements JMSProducer {
             objectMsg = jmsContext.createObjectMessage();
         }
         else if(jmsSession != null) {
-            try {
-                objectMsg = jmsSession.createObjectMessage();
-            } catch (JMSException e) {
-                e.printStackTrace();
-            }
+            objectMsg = jmsSession.createObjectMessage();
         }
         return objectMsg;
     }
