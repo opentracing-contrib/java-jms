@@ -24,7 +24,6 @@ import io.opentracing.SpanContext;
 import io.opentracing.mock.MockSpan;
 import io.opentracing.mock.MockTracer;
 import io.opentracing.tag.Tags;
-import io.opentracing.util.ThreadLocalScopeManager;
 import java.io.IOException;
 import javax.jms.Destination;
 import org.apache.activemq.command.ActiveMQQueue;
@@ -35,8 +34,7 @@ import org.junit.Test;
 
 public class TracingMessageUtilsTest {
 
-  private final MockTracer mockTracer = new MockTracer(new ThreadLocalScopeManager(),
-      MockTracer.Propagator.TEXT_MAP);
+  private final MockTracer mockTracer = new MockTracer();
 
 
   @Before
