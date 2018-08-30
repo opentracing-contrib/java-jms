@@ -13,6 +13,7 @@
  */
 package io.opentracing.contrib.jms.spring;
 
+import io.opentracing.Tracer;
 import io.opentracing.mock.MockTracer;
 import io.opentracing.mock.MockTracer.Propagator;
 import io.opentracing.util.ThreadLocalScopeManager;
@@ -21,6 +22,7 @@ import org.apache.activemq.ActiveMQConnectionFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.jms.annotation.EnableJms;
 import org.springframework.jms.config.DefaultJmsListenerContainerFactory;
 import org.springframework.jms.support.converter.MessageConverter;
@@ -47,6 +49,12 @@ public class TestConfiguration {
   @Bean
   public DestinationResolver destinationResolver() {
     return new DynamicDestinationResolver();
+  }
+
+  @Bean
+  @Primary
+  public TracingMessagingMessageListenerAdapter tracingMessagingMessageListenerAdapter(Tracer tracer) {
+    return new ExtendedTracingMessagingMessageListenerAdapter(tracer);
   }
 
   @Bean

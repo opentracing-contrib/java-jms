@@ -19,8 +19,11 @@ import io.opentracing.contrib.jms.common.TracingMessageListener;
 import io.opentracing.contrib.jms.common.TracingMessageUtils;
 import org.springframework.jms.listener.adapter.MessagingMessageListenerAdapter;
 
-import javax.jms.*;
-import java.lang.IllegalStateException;
+import javax.jms.Destination;
+import javax.jms.JMSException;
+import javax.jms.Message;
+import javax.jms.MessageListener;
+import javax.jms.Session;
 
 public class TracingMessagingMessageListenerAdapter extends MessagingMessageListenerAdapter {
 
