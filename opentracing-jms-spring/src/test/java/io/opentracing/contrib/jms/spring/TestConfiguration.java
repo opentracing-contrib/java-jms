@@ -23,6 +23,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
+import org.springframework.context.annotation.Profile;
 import org.springframework.jms.annotation.EnableJms;
 import org.springframework.jms.config.DefaultJmsListenerContainerFactory;
 import org.springframework.jms.support.converter.MessageConverter;
@@ -53,6 +54,7 @@ public class TestConfiguration {
 
   @Bean
   @Primary
+  @Profile("extended")
   public TracingMessagingMessageListenerAdapter tracingMessagingMessageListenerAdapter(Tracer tracer) {
     return new ExtendedTracingMessagingMessageListenerAdapter(tracer);
   }
