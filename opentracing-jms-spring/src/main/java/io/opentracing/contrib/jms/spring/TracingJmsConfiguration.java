@@ -33,11 +33,16 @@ public class TracingJmsConfiguration {
   public TracingJmsConfiguration(ObjectProvider<MessageConverter> messageConverter) {
     this.messageConverter = messageConverter;
   }
-  
+
+  @Bean
+  public TracingMessagingMessageListenerAdapter createTracingMessagingMessageListenerAdapter(Tracer tracer) {
+    return new TracingMessagingMessageListenerAdapter(tracer);
+  }
+
   @Bean
   public TracingJmsListenerEndpointRegistry createTracingJmsListenerEndpointRegistry(
-      Tracer tracer) {
-    return new TracingJmsListenerEndpointRegistry(tracer);
+      TracingMessagingMessageListenerAdapter listenerAdapter) {
+    return new TracingJmsListenerEndpointRegistry(listenerAdapter);
   }
 
   @Bean

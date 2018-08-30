@@ -13,15 +13,6 @@
  */
 package io.opentracing.contrib.jms.spring;
 
-import io.opentracing.Span;
-import io.opentracing.Tracer;
-import io.opentracing.contrib.jms.common.TracingMessageListener;
-import io.opentracing.contrib.jms.common.TracingMessageUtils;
-import javax.jms.Destination;
-import javax.jms.JMSException;
-import javax.jms.Message;
-import javax.jms.MessageListener;
-import javax.jms.Session;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
@@ -37,12 +28,12 @@ import org.springframework.messaging.handler.annotation.support.MessageHandlerMe
 public class TracingJmsListenerEndpointRegistry extends JmsListenerEndpointRegistry implements
     BeanFactoryAware {
 
-  private final Tracer tracer;
+  private TracingMessagingMessageListenerAdapter listenerAdapter;
   private BeanFactory beanFactory;
   private JmsListenerEndpointRegistrar registrar;
 
-  public TracingJmsListenerEndpointRegistry(Tracer tracer) {
-    this.tracer = tracer;
+  public TracingJmsListenerEndpointRegistry(TracingMessagingMessageListenerAdapter listenerAdapter) {
+    this.listenerAdapter = listenerAdapter;
   }
 
   @Override
@@ -89,41 +80,7 @@ public class TracingJmsListenerEndpointRegistry extends JmsListenerEndpointRegis
 
     @Override
     protected MessagingMessageListenerAdapter createMessageListenerInstance() {
-      return new TracingMessagingMessageListenerAdapter();
-    }
-  }
-
-  private class TracingMessagingMessageListenerAdapter extends MessagingMessageListenerAdapter {
-
-    @Override
-    public void onMessage(final Message jmsMessage, final Session session) throws JMSException {
-      TracingMessageListener listener = new TracingMessageListener(
-          new MessageListener() {
-            @Override
-            public void onMessage(Message message) {
-              onMessageInternal(message, session);
-            }
-          }, tracer);
-      listener.onMessage(jmsMessage);
-    }
-
-    private void onMessageInternal(Message jmsMessage, Session session) {
-      try {
-        super.onMessage(jmsMessage, session);
-      } catch (JMSException e) {
-        throw new IllegalStateException(e);
-      }
-    }
-
-    @Override
-    protected void sendResponse(Session session, Destination destination, Message response)
-        throws JMSException {
-      Span span = TracingMessageUtils.buildAndInjectSpan(destination, response, tracer);
-      try {
-        super.sendResponse(session, destination, response);
-      } finally {
-        span.finish();
-      }
+      return listenerAdapter.newInstance();
     }
   }
 
