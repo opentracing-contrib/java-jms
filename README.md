@@ -136,6 +136,26 @@ Modules _opentracing-jms-1_ and _opentracing-jms-2_ have next _Automatic-Module-
 
 [Apache 2.0 License](./LICENSE).
 
+## OpenTracing Conventions
+
+### Message properties
+
+When a message exchange between a producer and consumer is traced using an OpenTracing compliant tracer,
+the trace context and any defined baggage items will be carried in the JMS message properties.
+
+OpenTracing does not place any restrictions on the names used for the trace context and baggage item
+properties. However the JMS API does not permit the hyphen/dash `-` character to be used. Therefore, it
+is necessary to encode the trace context and baggage item names.
+
+The steps used to encode the key names are:
+
+- replace any `-` character with `_$dash$_`
+
+When the message is consumed, the steps are reversed to decode the original key names.
+
+Any libraries that instrument the JMS API should conform to this convention to enable tracing interoperability.
+
+
 [ci-img]: https://travis-ci.org/opentracing-contrib/java-jms.svg?branch=master
 [ci]: https://travis-ci.org/opentracing-contrib/java-jms
 [cov-img]: https://coveralls.io/repos/github/opentracing-contrib/java-jms/badge.svg?branch=master
