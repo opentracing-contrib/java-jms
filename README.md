@@ -132,10 +132,6 @@ Modules _opentracing-jms-1_ and _opentracing-jms-2_ have next _Automatic-Module-
 - io.opentracing.contrib.jms1
 - io.opentracing.contrib.jms2
 
-## License
-
-[Apache 2.0 License](./LICENSE).
-
 ## OpenTracing Conventions
 
 ### Message properties
@@ -155,6 +151,9 @@ When the message is consumed, the steps are reversed to decode the original key 
 
 Any libraries that instrument the JMS API should conform to this convention to enable tracing interoperability.
 
+## License
+
+[Apache 2.0 License](./LICENSE).
 
 [ci-img]: https://travis-ci.org/opentracing-contrib/java-jms.svg?branch=master
 [ci]: https://travis-ci.org/opentracing-contrib/java-jms
