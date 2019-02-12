@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2018 The OpenTracing Authors
+ * Copyright 2017-2019 The OpenTracing Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -13,6 +13,8 @@
  */
 package io.opentracing.contrib.jms.spring;
 
+import javax.jms.JMSException;
+import javax.jms.Message;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -25,34 +27,31 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import javax.jms.JMSException;
-import javax.jms.Message;
-
 @RunWith(SpringRunner.class)
 @ActiveProfiles("extended")
 @ContextConfiguration(classes = {TestConfiguration.class})
 public class TracingMessagingMessageListenerAdapterTest {
 
-    @Autowired
-    private TracingMessagingMessageListenerAdapter adapter;
+  @Autowired
+  private TracingMessagingMessageListenerAdapter adapter;
 
-    @Mock
-    private Message jmsMessage;
+  @Mock
+  private Message jmsMessage;
 
-    @Before
-    public void before() {
-        MockitoAnnotations.initMocks(this);
-    }
+  @Before
+  public void before() {
+    MockitoAnnotations.initMocks(this);
+  }
 
-    @Test
-    public void testExtendedAdapterCreatesCorrectInstance() {
-        TracingMessagingMessageListenerAdapter instance = adapter.newInstance();
-        Assert.assertTrue(instance instanceof ExtendedTracingMessagingMessageListenerAdapter);
-    }
+  @Test
+  public void testExtendedAdapterCreatesCorrectInstance() {
+    TracingMessagingMessageListenerAdapter instance = adapter.newInstance();
+    Assert.assertTrue(instance instanceof ExtendedTracingMessagingMessageListenerAdapter);
+  }
 
-    @Test
-    public void testExtendedAdapterHandlesMessage() throws JMSException {
-        adapter.onMessage(jmsMessage, null);
-        Mockito.verify(jmsMessage, Mockito.times(1)).acknowledge();
-    }
+  @Test
+  public void testExtendedAdapterHandlesMessage() throws JMSException {
+    adapter.onMessage(jmsMessage, null);
+    Mockito.verify(jmsMessage, Mockito.times(1)).acknowledge();
+  }
 }

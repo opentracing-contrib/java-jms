@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2018 The OpenTracing Authors
+ * Copyright 2017-2019 The OpenTracing Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -17,6 +17,7 @@ package io.opentracing.contrib.jms;
 import static org.awaitility.Awaitility.await;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
@@ -26,7 +27,6 @@ import io.opentracing.contrib.jms.common.TracingMessageUtils;
 import io.opentracing.mock.MockSpan;
 import io.opentracing.mock.MockTracer;
 import io.opentracing.tag.Tags;
-import io.opentracing.util.ThreadLocalScopeManager;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
@@ -48,8 +48,7 @@ import org.junit.Test;
 
 public class TracingActiveMQTest {
 
-  private final MockTracer mockTracer = new MockTracer(new ThreadLocalScopeManager(),
-      MockTracer.Propagator.TEXT_MAP);
+  private final MockTracer mockTracer = new MockTracer();
   private Session session;
   private Connection connection;
 
@@ -57,7 +56,8 @@ public class TracingActiveMQTest {
   public void before() throws Exception {
     mockTracer.reset();
 
-    ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory("vm://localhost");
+    ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory(
+        "vm://localhost?broker.persistent=false");
     connection = connectionFactory.createConnection();
     connection.start();
     session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -100,7 +100,7 @@ public class TracingActiveMQTest {
   }
 
   @Test
-  public void sendAndReceiveInListener() throws Exception {
+  public void sendAndReceiveInExplicitTracingListener() throws Exception {
     Destination destination = session.createQueue("TEST.FOO");
 
     MessageProducer messageProducer = session.createProducer(destination);
@@ -118,9 +118,50 @@ public class TracingActiveMQTest {
         new MessageListener() {
           @Override
           public void onMessage(Message message) {
+            assertNotNull(mockTracer.activeSpan());
             countDownLatch.countDown();
           }
         }, mockTracer);
+
+    messageConsumer.setMessageListener(messageListener);
+
+    TextMessage message = session.createTextMessage("Hello world");
+
+    producer.send(message);
+    countDownLatch.await(15, TimeUnit.SECONDS);
+
+    await().atMost(15, TimeUnit.SECONDS).until(reportedSpansSize(), equalTo(2));
+
+    List<MockSpan> mockSpans = mockTracer.finishedSpans();
+    assertEquals(2, mockSpans.size());
+
+    checkSpans(mockSpans);
+
+    assertNull(mockTracer.activeSpan());
+  }
+
+  @Test
+  public void sendAndReceiveInImplicitTracingListener() throws Exception {
+    Destination destination = session.createQueue("TEST.FOO");
+
+    MessageProducer messageProducer = session.createProducer(destination);
+    messageProducer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
+
+    // Instrument MessageProducer with TracingMessageProducer
+    TracingMessageProducer producer =
+        new TracingMessageProducer(messageProducer, mockTracer);
+
+    MessageConsumer messageConsumer = new TracingMessageConsumer(
+        session.createConsumer(destination), mockTracer);
+
+    final CountDownLatch countDownLatch = new CountDownLatch(1);
+    MessageListener messageListener = new MessageListener() {
+      @Override
+      public void onMessage(Message message) {
+        assertNotNull(mockTracer.activeSpan());
+        countDownLatch.countDown();
+      }
+    };
 
     messageConsumer.setMessageListener(messageListener);
 
