@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2018 The OpenTracing Authors
+ * Copyright 2017-2019 The OpenTracing Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -15,36 +15,36 @@ package io.opentracing.contrib.jms.spring;
 
 import io.opentracing.Tracer;
 import io.opentracing.contrib.jms.common.TracingMessageListener;
-
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageListener;
 import javax.jms.Session;
 
-public class ExtendedTracingMessagingMessageListenerAdapter extends TracingMessagingMessageListenerAdapter {
+public class ExtendedTracingMessagingMessageListenerAdapter extends
+    TracingMessagingMessageListenerAdapter {
 
-    protected ExtendedTracingMessagingMessageListenerAdapter(Tracer tracer) {
-        super(tracer);
-    }
+  protected ExtendedTracingMessagingMessageListenerAdapter(Tracer tracer) {
+    super(tracer);
+  }
 
-    @Override
-    public void onMessage(final Message jmsMessage, final Session session) {
-        TracingMessageListener listener = new TracingMessageListener(
-            new MessageListener() {
-                @Override
-                public void onMessage(Message message) {
-                    try {
-                        jmsMessage.acknowledge();
-                    } catch (JMSException e) {
+  @Override
+  public void onMessage(final Message jmsMessage, final Session session) {
+    TracingMessageListener listener = new TracingMessageListener(
+        new MessageListener() {
+          @Override
+          public void onMessage(Message message) {
+            try {
+              jmsMessage.acknowledge();
+            } catch (JMSException e) {
 
-                    }
-                }
-            }, tracer);
-        listener.onMessage(jmsMessage);
-    }
+            }
+          }
+        }, tracer);
+    listener.onMessage(jmsMessage);
+  }
 
-    @Override
-    protected TracingMessagingMessageListenerAdapter newInstance() {
-        return new ExtendedTracingMessagingMessageListenerAdapter(tracer);
-    }
+  @Override
+  protected TracingMessagingMessageListenerAdapter newInstance() {
+    return new ExtendedTracingMessagingMessageListenerAdapter(tracer);
+  }
 }

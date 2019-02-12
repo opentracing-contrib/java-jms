@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2018 The OpenTracing Authors
+ * Copyright 2017-2019 The OpenTracing Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -26,11 +26,11 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Profile;
 import org.springframework.jms.annotation.EnableJms;
 import org.springframework.jms.config.DefaultJmsListenerContainerFactory;
+import org.springframework.jms.support.converter.MappingJackson2MessageConverter;
 import org.springframework.jms.support.converter.MessageConverter;
+import org.springframework.jms.support.converter.MessageType;
 import org.springframework.jms.support.destination.DestinationResolver;
 import org.springframework.jms.support.destination.DynamicDestinationResolver;
-import org.springframework.jms.support.converter.MappingJackson2MessageConverter;
-import org.springframework.jms.support.converter.MessageType;
 
 @Configuration
 @EnableJms
@@ -44,7 +44,7 @@ public class TestConfiguration {
 
   @Bean
   public ConnectionFactory connectionFactory() {
-    return new ActiveMQConnectionFactory("vm://localhost");
+    return new ActiveMQConnectionFactory("vm://localhost?broker.persistent=false");
   }
 
   @Bean
@@ -55,7 +55,8 @@ public class TestConfiguration {
   @Bean
   @Primary
   @Profile("extended")
-  public TracingMessagingMessageListenerAdapter tracingMessagingMessageListenerAdapter(Tracer tracer) {
+  public TracingMessagingMessageListenerAdapter tracingMessagingMessageListenerAdapter(
+      Tracer tracer) {
     return new ExtendedTracingMessagingMessageListenerAdapter(tracer);
   }
 
@@ -71,9 +72,9 @@ public class TestConfiguration {
 
   @Bean
   public MessageConverter messageConverter() {
-      MappingJackson2MessageConverter converter = new MappingJackson2MessageConverter();
-      converter.setTargetType(MessageType.TEXT);
-      converter.setTypeIdPropertyName("_type");
-      return converter;
+    MappingJackson2MessageConverter converter = new MappingJackson2MessageConverter();
+    converter.setTargetType(MessageType.TEXT);
+    converter.setTypeIdPropertyName("_type");
+    return converter;
   }
 }

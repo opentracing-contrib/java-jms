@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2018 The OpenTracing Authors
+ * Copyright 2017-2019 The OpenTracing Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -52,7 +52,11 @@ public class TracingMessageConsumer implements MessageConsumer {
 
   @Override
   public void setMessageListener(MessageListener listener) throws JMSException {
-    messageConsumer.setMessageListener(listener);
+    if (listener instanceof TracingMessageConsumer) {
+      messageConsumer.setMessageListener(listener);
+    } else {
+      messageConsumer.setMessageListener(new TracingMessageListener(listener, tracer));
+    }
   }
 
   @Override
@@ -81,9 +85,7 @@ public class TracingMessageConsumer implements MessageConsumer {
     messageConsumer.close();
   }
 
-  private void finishSpan(Message message) throws JMSException {
+  private void finishSpan(Message message) {
     TracingMessageUtils.buildAndFinishChildSpan(message, tracer);
   }
 }
-
-

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2018 The OpenTracing Authors
+ * Copyright 2017-2019 The OpenTracing Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -32,18 +32,17 @@ import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
-import javax.jms.JMSProducer;
-import javax.jms.JMSContext;
-import javax.jms.Session;
+import javax.jms.Connection;
 import javax.jms.Destination;
-import javax.jms.MessageProducer;
+import javax.jms.JMSContext;
+import javax.jms.JMSProducer;
+import javax.jms.Message;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageListener;
+import javax.jms.MessageProducer;
 import javax.jms.Queue;
-import javax.jms.Connection;
+import javax.jms.Session;
 import javax.jms.TextMessage;
-import javax.jms.Message;
-
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.core.config.impl.ConfigurationImpl;
 import org.apache.activemq.artemis.core.remoting.impl.invm.InVMAcceptorFactory;
@@ -129,34 +128,34 @@ public class TracingArtemisTest {
     assertNull(mockTracer.activeSpan());
   }
 
-    @Test
-    public void sendAndReceiveJMSProducer() throws Exception {
-        Destination destination = session.createQueue("TEST.FOO");
+  @Test
+  public void sendAndReceiveJMSProducer() throws Exception {
+    Destination destination = session.createQueue("TEST.FOO");
 
-        JMSProducer jmsProducer =  jmsContext.createProducer();
+    JMSProducer jmsProducer = jmsContext.createProducer();
 
-        // Instrument MessageProducer with TracingMessageProducer
-        TracingJMSProducer producer =
-                new TracingJMSProducer(jmsProducer, session, mockTracer);
+    // Instrument MessageProducer with TracingMessageProducer
+    TracingJMSProducer producer =
+        new TracingJMSProducer(jmsProducer, session, mockTracer);
 
-        MessageConsumer messageConsumer = session.createConsumer(destination);
+    MessageConsumer messageConsumer = session.createConsumer(destination);
 
-        TextMessage message = session.createTextMessage("Hello world");
+    TextMessage message = session.createTextMessage("Hello world");
 
-        // Instrument MessageConsumer with TracingMessageConsumer
-        TracingMessageConsumer consumer = new TracingMessageConsumer(messageConsumer, mockTracer);
+    // Instrument MessageConsumer with TracingMessageConsumer
+    TracingMessageConsumer consumer = new TracingMessageConsumer(messageConsumer, mockTracer);
 
-        producer.send(destination, message);
+    producer.send(destination, message);
 
-        TextMessage received = (TextMessage) consumer.receive(5000);
-        assertEquals("Hello world", received.getText());
+    TextMessage received = (TextMessage) consumer.receive(5000);
+    assertEquals("Hello world", received.getText());
 
-        List<MockSpan> mockSpans = mockTracer.finishedSpans();
-        assertEquals(2, mockSpans.size());
+    List<MockSpan> mockSpans = mockTracer.finishedSpans();
+    assertEquals(2, mockSpans.size());
 
-        checkSpans(mockSpans);
-        assertNull(mockTracer.activeSpan());
-    }
+    checkSpans(mockSpans);
+    assertNull(mockTracer.activeSpan());
+  }
 
   @Test
   public void sendAndReceiveInListener() throws Exception {
