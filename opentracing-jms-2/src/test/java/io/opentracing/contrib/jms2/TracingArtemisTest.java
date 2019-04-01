@@ -25,7 +25,6 @@ import io.opentracing.contrib.jms.common.TracingMessageUtils;
 import io.opentracing.mock.MockSpan;
 import io.opentracing.mock.MockTracer;
 import io.opentracing.tag.Tags;
-import io.opentracing.util.ThreadLocalScopeManager;
 import java.io.File;
 import java.util.HashSet;
 import java.util.List;
@@ -55,8 +54,7 @@ import org.junit.Test;
 
 public class TracingArtemisTest {
 
-  private final MockTracer mockTracer = new MockTracer(new ThreadLocalScopeManager(),
-      MockTracer.Propagator.TEXT_MAP);
+  private final MockTracer mockTracer = new MockTracer();
 
   private ActiveMQServer server;
   private Connection connection;
@@ -170,7 +168,7 @@ public class TracingArtemisTest {
     MessageConsumer messageConsumer = session.createConsumer(destination);
 
     final CountDownLatch countDownLatch = new CountDownLatch(1);
-    // Instrument MessgaeListener with TraceMessageListener
+    // Instrument MessageListener with TraceMessageListener
     MessageListener messageListener = new TracingMessageListener(
         new MessageListener() {
           @Override
@@ -212,7 +210,7 @@ public class TracingArtemisTest {
   private Callable<Integer> reportedSpansSize() {
     return new Callable<Integer>() {
       @Override
-      public Integer call() throws Exception {
+      public Integer call() {
         return mockTracer.finishedSpans().size();
       }
     };

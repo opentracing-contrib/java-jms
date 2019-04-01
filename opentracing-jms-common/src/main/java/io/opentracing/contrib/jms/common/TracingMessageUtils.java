@@ -15,10 +15,10 @@ package io.opentracing.contrib.jms.common;
 
 
 import io.opentracing.References;
-import io.opentracing.Scope;
 import io.opentracing.Span;
 import io.opentracing.SpanContext;
 import io.opentracing.Tracer;
+import io.opentracing.noop.NoopSpan;
 import io.opentracing.propagation.Format;
 import io.opentracing.tag.Tags;
 import javax.jms.Destination;
@@ -37,11 +37,11 @@ public class TracingMessageUtils {
    * @param tracer Tracer
    * @return child span
    */
-  public static Scope buildAndFinishChildSpan(Message message, Tracer tracer) {
+  public static Span buildAndFinishChildSpan(Message message, Tracer tracer) {
 
-    Scope child = buildFollowingSpan(message, tracer);
+    Span child = buildFollowingSpan(message, tracer);
     if (child != null) {
-      child.close();
+      child.finish();
     }
     return child;
   }
@@ -49,7 +49,7 @@ public class TracingMessageUtils {
   /**
    * It is used by consumers only
    */
-  public static Scope buildFollowingSpan(Message message, Tracer tracer) {
+  public static Span buildFollowingSpan(Message message, Tracer tracer) {
     SpanContext context = extract(message, tracer);
 
     if (context != null) {
@@ -60,14 +60,14 @@ public class TracingMessageUtils {
 
       spanBuilder.addReference(References.FOLLOWS_FROM, context);
 
-      Scope scope = spanBuilder.startActive(true);
+      Span span = spanBuilder.start();
 
-      SpanJmsDecorator.onResponse(message, scope.span());
+      SpanJmsDecorator.onResponse(message, span);
 
-      return scope;
+      return span;
     }
 
-    return null;
+    return NoopSpan.INSTANCE;
   }
 
   /**

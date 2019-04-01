@@ -14,6 +14,7 @@
 package io.opentracing.contrib.jms.spring;
 
 import io.opentracing.Scope;
+import io.opentracing.mock.MockSpan;
 import io.opentracing.mock.MockTracer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jms.annotation.JmsListener;
@@ -37,8 +38,11 @@ public class Receiver {
   public void onMessageSecond(String message) {
     System.out.println(message);
 
-    try (Scope scope = mockTracer.buildSpan("on message").startActive(true)) {
-      scope.span().setTag("test", "test");
+    final MockSpan span = mockTracer.buildSpan("on message").start();
+    try (Scope ignored = mockTracer.activateSpan(span)) {
+      span.setTag("test", "test");
+    } finally {
+      span.finish();
     }
   }
 }

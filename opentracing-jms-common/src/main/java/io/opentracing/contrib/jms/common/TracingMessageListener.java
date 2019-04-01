@@ -15,6 +15,7 @@ package io.opentracing.contrib.jms.common;
 
 
 import io.opentracing.Scope;
+import io.opentracing.Span;
 import io.opentracing.Tracer;
 import io.opentracing.util.GlobalTracer;
 import javax.jms.Message;
@@ -42,16 +43,14 @@ public class TracingMessageListener implements MessageListener {
 
   @Override
   public void onMessage(Message message) {
-    Scope scope = TracingMessageUtils.buildFollowingSpan(message, tracer);
+    Span span = TracingMessageUtils.buildFollowingSpan(message, tracer);
 
-    try {
+    try (Scope ignored = tracer.activateSpan(span)) {
       if (messageListener != null) {
         messageListener.onMessage(message);
       }
     } finally {
-      if (scope != null) {
-        scope.close();
-      }
+      span.finish();
     }
 
   }

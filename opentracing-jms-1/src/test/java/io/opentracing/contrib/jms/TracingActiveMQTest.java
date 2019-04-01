@@ -113,7 +113,7 @@ public class TracingActiveMQTest {
     MessageConsumer messageConsumer = session.createConsumer(destination);
 
     final CountDownLatch countDownLatch = new CountDownLatch(1);
-    // Instrument MessgaeListener with TraceMessageListener
+    // Instrument MessageListener with TraceMessageListener
     MessageListener messageListener = new TracingMessageListener(
         new MessageListener() {
           @Override
@@ -196,7 +196,7 @@ public class TracingActiveMQTest {
   private Callable<Integer> reportedSpansSize() {
     return new Callable<Integer>() {
       @Override
-      public Integer call() throws Exception {
+      public Integer call() {
         return mockTracer.finishedSpans().size();
       }
     };
