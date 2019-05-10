@@ -52,8 +52,8 @@ public class TracingMessageUtils {
     SpanContext context = extract(message, tracer);
 
     Tracer.SpanBuilder spanBuilder = tracer.buildSpan(OPERATION_NAME_RECEIVE)
-            .ignoreActiveSpan()
-            .withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_CONSUMER);
+        .ignoreActiveSpan()
+        .withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_CONSUMER);
 
     // if context is null this is a no-op
     spanBuilder.addReference(References.FOLLOWS_FROM, context);
