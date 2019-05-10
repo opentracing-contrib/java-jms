@@ -18,7 +18,6 @@ import io.opentracing.References;
 import io.opentracing.Span;
 import io.opentracing.SpanContext;
 import io.opentracing.Tracer;
-import io.opentracing.noop.NoopSpan;
 import io.opentracing.propagation.Format;
 import io.opentracing.tag.Tags;
 import javax.jms.Destination;
@@ -52,22 +51,18 @@ public class TracingMessageUtils {
   public static Span buildFollowingSpan(Message message, Tracer tracer) {
     SpanContext context = extract(message, tracer);
 
-    if (context != null) {
+    Tracer.SpanBuilder spanBuilder = tracer.buildSpan(OPERATION_NAME_RECEIVE)
+            .ignoreActiveSpan()
+            .withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_CONSUMER);
 
-      Tracer.SpanBuilder spanBuilder = tracer.buildSpan(OPERATION_NAME_RECEIVE)
-          .ignoreActiveSpan()
-          .withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_CONSUMER);
+    // if context is null this is a no-op
+    spanBuilder.addReference(References.FOLLOWS_FROM, context);
 
-      spanBuilder.addReference(References.FOLLOWS_FROM, context);
+    Span span = spanBuilder.start();
 
-      Span span = spanBuilder.start();
+    SpanJmsDecorator.onResponse(message, span);
 
-      SpanJmsDecorator.onResponse(message, span);
-
-      return span;
-    }
-
-    return NoopSpan.INSTANCE;
+    return span;
   }
 
   /**
