@@ -19,7 +19,7 @@
   <parent>
     <groupId>io.opentracing.contrib</groupId>
     <artifactId>opentracing-jms-parent</artifactId>
-    <version>0.1.2-SNAPSHOT</version>
+    <version>0.1.2</version>
   </parent>
 
   <artifactId>opentracing-jms-spring</artifactId>
@@ -35,7 +35,7 @@
     <dependency>
       <groupId>io.opentracing.contrib</groupId>
       <artifactId>opentracing-jms-1</artifactId>
-      <version>0.1.2-SNAPSHOT</version>
+      <version>0.1.2</version>
     </dependency>
 
     <dependency>
