@@ -37,6 +37,9 @@ public class TracingMessageUtils {
    * @return child span context
    */
   public static SpanContext buildAndFinishChildSpan(Message message, Tracer tracer) {
+    if (message == null) {
+      return null;
+    }
     Span child = buildFollowingSpan(message, tracer);
     child.finish();
     return child.context();
