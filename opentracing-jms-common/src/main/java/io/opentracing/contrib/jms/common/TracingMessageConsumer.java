@@ -101,7 +101,7 @@ public class TracingMessageConsumer implements MessageConsumer {
     return TracingMessageUtils.buildAndFinishChildSpan(message, tracer);
   }
 
-  public Message proxy(final Message message, final SpanContext spanContext) {
+  private Message proxy(final Message message, final SpanContext spanContext) {
     if (message == null) {
       return null;
     }
