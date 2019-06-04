@@ -73,9 +73,9 @@ public class TracingMessageUtilsTest {
   public void buildAndFinishChildSpan() {
     MockSpan span = mockTracer.buildSpan("test").start();
     mockTracer.scopeManager().activate(span);
-    Span span2 = TracingMessageUtils
+    SpanContext childContext = TracingMessageUtils
         .buildAndFinishChildSpan(new ActiveMQTextMessage(), mockTracer);
-    assertNotNull(span2);
+    assertNotNull(childContext);
 
     assertNotNull(mockTracer.activeSpan());
 

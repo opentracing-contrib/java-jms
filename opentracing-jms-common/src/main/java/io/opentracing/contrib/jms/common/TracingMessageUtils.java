@@ -34,15 +34,12 @@ public class TracingMessageUtils {
    *
    * @param message JMS message
    * @param tracer Tracer
-   * @return child span
+   * @return child span context
    */
-  public static Span buildAndFinishChildSpan(Message message, Tracer tracer) {
-
+  public static SpanContext buildAndFinishChildSpan(Message message, Tracer tracer) {
     Span child = buildFollowingSpan(message, tracer);
-    if (child != null) {
-      child.finish();
-    }
-    return child;
+    child.finish();
+    return child.context();
   }
 
   /**
