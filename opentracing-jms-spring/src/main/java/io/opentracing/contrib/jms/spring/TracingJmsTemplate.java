@@ -17,7 +17,6 @@ package io.opentracing.contrib.jms.spring;
 import io.opentracing.Tracer;
 import io.opentracing.contrib.jms.TracingMessageProducer;
 import io.opentracing.contrib.jms.common.TracingMessageConsumer;
-import io.opentracing.util.GlobalTracer;
 import javax.jms.ConnectionFactory;
 import javax.jms.Destination;
 import javax.jms.JMSException;
@@ -31,22 +30,8 @@ public class TracingJmsTemplate extends JmsTemplate {
 
   private final Tracer tracer;
 
-  /**
-   * GlobalTracer is used to get tracer
-   */
-  public TracingJmsTemplate() {
-    this(GlobalTracer.get());
-  }
-
   public TracingJmsTemplate(Tracer tracer) {
     this.tracer = tracer;
-  }
-
-  /**
-   * GlobalTracer is used to get tracer
-   */
-  public TracingJmsTemplate(ConnectionFactory connectionFactory) {
-    this(connectionFactory, GlobalTracer.get());
   }
 
   public TracingJmsTemplate(ConnectionFactory connectionFactory, Tracer tracer) {

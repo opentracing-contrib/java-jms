@@ -16,9 +16,11 @@ package io.opentracing.contrib.jms2;
 import static org.awaitility.Awaitility.await;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import io.opentracing.contrib.jms.common.SpanContextContainer;
 import io.opentracing.contrib.jms.common.TracingMessageConsumer;
 import io.opentracing.contrib.jms.common.TracingMessageListener;
 import io.opentracing.contrib.jms.common.TracingMessageUtils;
@@ -118,6 +120,39 @@ public class TracingArtemisTest {
 
     TextMessage received = (TextMessage) consumer.receive(5000);
     assertEquals("Hello world", received.getText());
+
+    List<MockSpan> mockSpans = mockTracer.finishedSpans();
+    assertEquals(2, mockSpans.size());
+
+    checkSpans(mockSpans);
+    assertNull(mockTracer.activeSpan());
+  }
+
+  @Test
+  public void sendAndReceiveWithProxyMessage() throws Exception {
+    Queue queue = session.createQueue("TEST.FOO");
+
+    MessageProducer messageProducer = session.createProducer(queue);
+
+    // Instrument MessageProducer with TracingMessageProducer
+    TracingMessageProducer producer =
+        new TracingMessageProducer(messageProducer, mockTracer);
+
+    MessageConsumer messageConsumer = session.createConsumer(queue);
+
+    // Instrument MessageConsumer with TracingMessageConsumer
+    TracingMessageConsumer consumer = new TracingMessageConsumer(messageConsumer, mockTracer, true);
+
+    TextMessage message = session.createTextMessage("Hello world");
+
+    producer.send(message);
+
+    TextMessage received = (TextMessage) consumer.receive(5000);
+    assertEquals("Hello world", received.getText());
+
+    assertTrue(received instanceof SpanContextContainer);
+    SpanContextContainer spanContextContainer = (SpanContextContainer) received;
+    assertNotNull(spanContextContainer.getSpanContext());
 
     List<MockSpan> mockSpans = mockTracer.finishedSpans();
     assertEquals(2, mockSpans.size());

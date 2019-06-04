@@ -17,7 +17,6 @@ package io.opentracing.contrib.jms.common;
 import io.opentracing.Scope;
 import io.opentracing.Span;
 import io.opentracing.Tracer;
-import io.opentracing.util.GlobalTracer;
 import javax.jms.Message;
 import javax.jms.MessageListener;
 
@@ -28,13 +27,6 @@ public class TracingMessageListener implements MessageListener {
 
   private final MessageListener messageListener;
   private final Tracer tracer;
-
-  /**
-   * GlobalTracer is used to get tracer
-   */
-  public TracingMessageListener(MessageListener messageListener) {
-    this(messageListener, GlobalTracer.get());
-  }
 
   public TracingMessageListener(MessageListener messageListener, Tracer tracer) {
     this.messageListener = messageListener;

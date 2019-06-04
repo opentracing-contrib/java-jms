@@ -13,8 +13,11 @@
  */
 package io.opentracing.contrib.jms.common;
 
+import io.opentracing.SpanContext;
 import io.opentracing.Tracer;
-import io.opentracing.util.GlobalTracer;
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
@@ -27,17 +30,17 @@ public class TracingMessageConsumer implements MessageConsumer {
 
   private final MessageConsumer messageConsumer;
   private final Tracer tracer;
-
-  /**
-   * GlobalTracer is used to get tracer
-   */
-  public TracingMessageConsumer(MessageConsumer messageConsumer) {
-    this(messageConsumer, GlobalTracer.get());
-  }
+  private final boolean proxyMessage;
 
   public TracingMessageConsumer(MessageConsumer messageConsumer, Tracer tracer) {
+    this(messageConsumer, tracer, false);
+  }
+
+  public TracingMessageConsumer(MessageConsumer messageConsumer, Tracer tracer,
+      boolean proxyMessage) {
     this.messageConsumer = messageConsumer;
     this.tracer = tracer;
+    this.proxyMessage = proxyMessage;
   }
 
   @Override
@@ -62,6 +65,9 @@ public class TracingMessageConsumer implements MessageConsumer {
   @Override
   public Message receive() throws JMSException {
     Message message = messageConsumer.receive();
+    if (proxyMessage) {
+      return proxy(message, finishSpan(message));
+    }
     finishSpan(message);
     return message;
   }
@@ -69,6 +75,9 @@ public class TracingMessageConsumer implements MessageConsumer {
   @Override
   public Message receive(long timeout) throws JMSException {
     Message message = messageConsumer.receive(timeout);
+    if (proxyMessage) {
+      return proxy(message, finishSpan(message));
+    }
     finishSpan(message);
     return message;
   }
@@ -76,6 +85,9 @@ public class TracingMessageConsumer implements MessageConsumer {
   @Override
   public Message receiveNoWait() throws JMSException {
     Message message = messageConsumer.receiveNoWait();
+    if (proxyMessage) {
+      return proxy(message, finishSpan(message));
+    }
     finishSpan(message);
     return message;
   }
@@ -85,7 +97,26 @@ public class TracingMessageConsumer implements MessageConsumer {
     messageConsumer.close();
   }
 
-  private void finishSpan(Message message) {
-    TracingMessageUtils.buildAndFinishChildSpan(message, tracer);
+  private SpanContext finishSpan(Message message) {
+    return TracingMessageUtils.buildAndFinishChildSpan(message, tracer);
+  }
+
+  public Message proxy(final Message message, final SpanContext spanContext) {
+    final Class<?>[] interfaces = message.getClass().getInterfaces();
+    Class<?>[] allInterfaces = new Class<?>[interfaces.length + 1];
+    System.arraycopy(interfaces, 0, allInterfaces, 0, interfaces.length);
+    allInterfaces[interfaces.length] = SpanContextContainer.class;
+
+    return (Message) Proxy.newProxyInstance(message.getClass().getClassLoader(),
+        allInterfaces,
+        new InvocationHandler() {
+          @Override
+          public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+            if (method.getName().equals("getSpanContext")) {
+              return spanContext;
+            }
+            return method.invoke(message, args);
+          }
+        });
   }
 }
