@@ -102,6 +102,9 @@ public class TracingMessageConsumer implements MessageConsumer {
   }
 
   public Message proxy(final Message message, final SpanContext spanContext) {
+    if (message == null) {
+      return null;
+    }
     final Class<?>[] interfaces = message.getClass().getInterfaces();
     Class<?>[] allInterfaces = new Class<?>[interfaces.length + 1];
     System.arraycopy(interfaces, 0, allInterfaces, 0, interfaces.length);
