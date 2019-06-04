@@ -15,7 +15,6 @@ package io.opentracing.contrib.jms.common;
 
 import io.opentracing.SpanContext;
 import io.opentracing.Tracer;
-import io.opentracing.util.GlobalTracer;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
@@ -32,13 +31,6 @@ public class TracingMessageConsumer implements MessageConsumer {
   private final MessageConsumer messageConsumer;
   private final Tracer tracer;
   private final boolean proxyMessage;
-
-  /**
-   * GlobalTracer is used to get tracer
-   */
-  public TracingMessageConsumer(MessageConsumer messageConsumer) {
-    this(messageConsumer, GlobalTracer.get());
-  }
 
   public TracingMessageConsumer(MessageConsumer messageConsumer, Tracer tracer) {
     this(messageConsumer, tracer, false);

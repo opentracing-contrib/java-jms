@@ -18,7 +18,6 @@ import io.opentracing.Span;
 import io.opentracing.Tracer;
 import io.opentracing.contrib.jms.common.SpanJmsDecorator;
 import io.opentracing.contrib.jms.common.TracingMessageUtils;
-import io.opentracing.util.GlobalTracer;
 import javax.jms.Destination;
 import javax.jms.JMSException;
 import javax.jms.Message;
@@ -31,13 +30,6 @@ public class TracingMessageProducer implements MessageProducer {
 
   private final MessageProducer messageProducer;
   private final Tracer tracer;
-
-  /**
-   * GlobalTracer is used to get tracer
-   */
-  public TracingMessageProducer(MessageProducer messageProducer) {
-    this(messageProducer, GlobalTracer.get());
-  }
 
   public TracingMessageProducer(MessageProducer messageProducer, Tracer tracer) {
     this.messageProducer = messageProducer;

@@ -17,7 +17,6 @@ import io.opentracing.Span;
 import io.opentracing.Tracer;
 import io.opentracing.contrib.jms.common.SpanJmsDecorator;
 import io.opentracing.contrib.jms.common.TracingMessageUtils;
-import io.opentracing.util.GlobalTracer;
 import java.io.Serializable;
 import java.util.Map;
 import java.util.Set;
@@ -44,24 +43,10 @@ public class TracingJMSProducer implements JMSProducer {
   private Session jmsSession = null;
   private final Tracer tracer;
 
-  /**
-   * GlobalTracer is used to get tracer
-   */
-  public TracingJMSProducer(JMSProducer jmsProducer, JMSContext jmsContext) {
-    this(jmsProducer, jmsContext, GlobalTracer.get());
-  }
-
   public TracingJMSProducer(JMSProducer jmsProducer, JMSContext jmsContext, Tracer tracer) {
     this.jmsProducer = jmsProducer;
     this.jmsContext = jmsContext;
     this.tracer = tracer;
-  }
-
-  /**
-   * GlobalTracer is used to get tracer
-   */
-  public TracingJMSProducer(JMSProducer jmsProducer, Session jmsSession) {
-    this(jmsProducer, jmsSession, GlobalTracer.get());
   }
 
   public TracingJMSProducer(JMSProducer jmsProducer, Session jmsSession, Tracer tracer) {
