@@ -27,14 +27,14 @@
   <description>OpenTracing Instrumentation for Spring JMS API</description>
 
   <properties>
-    <spring.version>5.1.5.RELEASE</spring.version>
+    <spring.version>5.1.8.RELEASE</spring.version>
   </properties>
 
   <dependencies>
 
     <dependency>
       <groupId>io.opentracing.contrib</groupId>
-      <artifactId>opentracing-jms-1</artifactId>
+      <artifactId>opentracing-jms-2</artifactId>
       <version>0.1.4-SNAPSHOT</version>
     </dependency>
 
