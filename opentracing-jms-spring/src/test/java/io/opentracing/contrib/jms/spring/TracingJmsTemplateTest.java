@@ -16,6 +16,7 @@ package io.opentracing.contrib.jms.spring;
 import static org.awaitility.Awaitility.await;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
@@ -90,20 +91,39 @@ public class TracingJmsTemplateTest {
 
   @Test
   public void sendAndReceive() throws Exception {
-    String destionation = "TEST.DEST";
+    String destination = "TEST.THIRD";
+    final Message message = jmsTemplate.sendAndReceive(destination, new MessageCreator() {
+      @Override
+      public Message createMessage(Session session) throws JMSException {
+        return session.createTextMessage("message");
+      }
+    });
+    assertNotNull(message);
+    assertEquals("MESSAGE", ((TextMessage)message).getText());
 
-    jmsTemplate.send(destionation, new MessageCreator() {
+    List<MockSpan> mockSpans = mockTracer.finishedSpans();
+    assertEquals(4, mockSpans.size());
+
+    checkSpans(mockSpans);
+    assertNull(mockTracer.activeSpan());
+  }
+
+  @Test
+  public void sendAndThenReceive() throws Exception {
+    String destination = "TEST.DEST";
+
+    jmsTemplate.send(destination, new MessageCreator() {
       @Override
       public Message createMessage(Session session) throws JMSException {
         return session.createTextMessage("Hello world");
       }
     });
 
-    TextMessage received = (TextMessage) jmsTemplate.receive(destionation);
+    TextMessage received = (TextMessage) jmsTemplate.receive(destination);
     assertEquals("Hello world", received.getText());
 
-    jmsTemplate.convertAndSend(destionation, "Hello world");
-    assertEquals("Hello world", jmsTemplate.receiveAndConvert(destionation));
+    jmsTemplate.convertAndSend(destination, "Hello world");
+    assertEquals("Hello world", jmsTemplate.receiveAndConvert(destination));
 
     List<MockSpan> mockSpans = mockTracer.finishedSpans();
     assertEquals(4, mockSpans.size());

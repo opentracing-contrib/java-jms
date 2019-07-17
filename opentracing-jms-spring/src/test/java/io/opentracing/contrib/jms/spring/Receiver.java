@@ -45,4 +45,9 @@ public class Receiver {
       span.finish();
     }
   }
+
+  @JmsListener(destination = "TEST.THIRD")
+  public String onMessageThird(Message message) {
+    return message.getPayload().toString().toUpperCase();
+  }
 }
