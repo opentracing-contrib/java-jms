@@ -19,6 +19,7 @@ import org.springframework.aop.framework.ProxyFactory;
 import org.springframework.aop.target.AbstractLazyCreationTargetSource;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jms.annotation.JmsListenerConfigurer;
@@ -29,6 +30,9 @@ import org.springframework.jms.support.converter.MessageConverter;
 public class TracingJmsConfiguration {
 
   private final ObjectProvider<MessageConverter> messageConverter;
+  
+  @Value("${io.opentracing.contrib.jms.common.tracingMessageListener.traceInLog:false}")
+  private boolean traceInLog;
 
   public TracingJmsConfiguration(ObjectProvider<MessageConverter> messageConverter) {
     this.messageConverter = messageConverter;
@@ -37,7 +41,7 @@ public class TracingJmsConfiguration {
   @Bean
   public TracingMessagingMessageListenerAdapter createTracingMessagingMessageListenerAdapter(
       Tracer tracer) {
-    return new TracingMessagingMessageListenerAdapter(tracer);
+    return new TracingMessagingMessageListenerAdapter(tracer,traceInLog);
   }
 
   @Bean
@@ -58,7 +62,7 @@ public class TracingJmsConfiguration {
     // if JMS is used, and ConnectionFactory bean is not present,
     // it will throw an error on first use, so imo, we should be all good
     ConnectionFactory connectionFactory = createProxy(beanFactory);
-    JmsTemplate ret = new TracingJmsTemplate(connectionFactory, tracer);
+    JmsTemplate ret = new TracingJmsTemplate(connectionFactory, tracer,traceInLog);
     MessageConverter mc = messageConverter.getIfAvailable();
     if (mc != null) {
       ret.setMessageConverter(mc);

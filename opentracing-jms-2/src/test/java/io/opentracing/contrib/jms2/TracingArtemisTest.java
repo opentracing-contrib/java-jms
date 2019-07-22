@@ -56,199 +56,191 @@ import org.junit.Test;
 
 public class TracingArtemisTest {
 
-  private final MockTracer mockTracer = new MockTracer();
+	private final MockTracer mockTracer = new MockTracer();
 
-  private ActiveMQServer server;
-  private Connection connection;
-  private Session session;
-  private JMSContext jmsContext;
+	private ActiveMQServer server;
+	private Connection connection;
+	private Session session;
+	private JMSContext jmsContext;
 
+	@Before
+	public void before() throws Exception {
+		mockTracer.reset();
 
-  @Before
-  public void before() throws Exception {
-    mockTracer.reset();
+		org.apache.activemq.artemis.core.config.Configuration configuration = new ConfigurationImpl();
 
-    org.apache.activemq.artemis.core.config.Configuration configuration = new ConfigurationImpl();
+		HashSet<TransportConfiguration> transports = new HashSet<>();
+		transports.add(new TransportConfiguration(InVMAcceptorFactory.class.getName()));
+		configuration.setAcceptorConfigurations(transports);
+		configuration.setSecurityEnabled(false);
 
-    HashSet<TransportConfiguration> transports = new HashSet<>();
-    transports.add(new TransportConfiguration(InVMAcceptorFactory.class.getName()));
-    configuration.setAcceptorConfigurations(transports);
-    configuration.setSecurityEnabled(false);
+		File targetDir = new File(System.getProperty("user.dir") + "/target");
+		configuration.setBrokerInstance(targetDir);
 
-    File targetDir = new File(System.getProperty("user.dir") + "/target");
-    configuration.setBrokerInstance(targetDir);
+		server = new ActiveMQServerImpl(configuration);
+		server.start();
+		ActiveMQJMSConnectionFactory connectionFactory = new ActiveMQJMSConnectionFactory("vm://0");
+		connection = connectionFactory.createConnection();
 
-    server = new ActiveMQServerImpl(configuration);
-    server.start();
-    ActiveMQJMSConnectionFactory connectionFactory = new ActiveMQJMSConnectionFactory("vm://0");
-    connection = connectionFactory.createConnection();
+		connection.start();
 
-    connection.start();
+		jmsContext = connectionFactory.createContext();
 
-    jmsContext = connectionFactory.createContext();
+		session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+	}
 
-    session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-  }
+	@After
+	public void after() throws Exception {
+		jmsContext.close();
+		session.close();
+		connection.close();
+		server.stop();
+	}
 
-  @After
-  public void after() throws Exception {
-    jmsContext.close();
-    session.close();
-    connection.close();
-    server.stop();
-  }
+	@Test
+	public void sendAndReceive() throws Exception {
+		Queue queue = session.createQueue("TEST.FOO");
 
+		MessageProducer messageProducer = session.createProducer(queue);
 
-  @Test
-  public void sendAndReceive() throws Exception {
-    Queue queue = session.createQueue("TEST.FOO");
+		// Instrument MessageProducer with TracingMessageProducer
+		TracingMessageProducer producer = new TracingMessageProducer(messageProducer, mockTracer);
 
-    MessageProducer messageProducer = session.createProducer(queue);
+		MessageConsumer messageConsumer = session.createConsumer(queue);
 
-    // Instrument MessageProducer with TracingMessageProducer
-    TracingMessageProducer producer =
-        new TracingMessageProducer(messageProducer, mockTracer);
+		// Instrument MessageConsumer with TracingMessageConsumer
+		TracingMessageConsumer consumer = new TracingMessageConsumer(messageConsumer, mockTracer, true);
 
-    MessageConsumer messageConsumer = session.createConsumer(queue);
+		TextMessage message = session.createTextMessage("Hello world");
 
-    // Instrument MessageConsumer with TracingMessageConsumer
-    TracingMessageConsumer consumer = new TracingMessageConsumer(messageConsumer, mockTracer);
+		producer.send(message);
 
-    TextMessage message = session.createTextMessage("Hello world");
+		TextMessage received = (TextMessage) consumer.receive(5000);
+		assertEquals("Hello world", received.getText());
 
-    producer.send(message);
+		List<MockSpan> mockSpans = mockTracer.finishedSpans();
+		assertEquals(2, mockSpans.size());
 
-    TextMessage received = (TextMessage) consumer.receive(5000);
-    assertEquals("Hello world", received.getText());
+		checkSpans(mockSpans);
+		assertNull(mockTracer.activeSpan());
+	}
 
-    List<MockSpan> mockSpans = mockTracer.finishedSpans();
-    assertEquals(2, mockSpans.size());
+	@Test
+	public void sendAndReceiveWithProxyMessage() throws Exception {
+		Queue queue = session.createQueue("TEST.FOO");
 
-    checkSpans(mockSpans);
-    assertNull(mockTracer.activeSpan());
-  }
+		MessageProducer messageProducer = session.createProducer(queue);
 
-  @Test
-  public void sendAndReceiveWithProxyMessage() throws Exception {
-    Queue queue = session.createQueue("TEST.FOO");
+		// Instrument MessageProducer with TracingMessageProducer
+		TracingMessageProducer producer = new TracingMessageProducer(messageProducer, mockTracer);
 
-    MessageProducer messageProducer = session.createProducer(queue);
+		MessageConsumer messageConsumer = session.createConsumer(queue);
 
-    // Instrument MessageProducer with TracingMessageProducer
-    TracingMessageProducer producer =
-        new TracingMessageProducer(messageProducer, mockTracer);
+		// Instrument MessageConsumer with TracingMessageConsumer
+		TracingMessageConsumer consumer = new TracingMessageConsumer(messageConsumer, mockTracer, true);
 
-    MessageConsumer messageConsumer = session.createConsumer(queue);
+		TextMessage message = session.createTextMessage("Hello world");
 
-    // Instrument MessageConsumer with TracingMessageConsumer
-    TracingMessageConsumer consumer = new TracingMessageConsumer(messageConsumer, mockTracer, true);
+		producer.send(message);
 
-    TextMessage message = session.createTextMessage("Hello world");
+		TextMessage received = (TextMessage) consumer.receive(5000);
+		assertEquals("Hello world", received.getText());
 
-    producer.send(message);
+		assertTrue(received instanceof SpanContextContainer);
+		SpanContextContainer spanContextContainer = (SpanContextContainer) received;
+		assertNotNull(spanContextContainer.getSpanContext());
 
-    TextMessage received = (TextMessage) consumer.receive(5000);
-    assertEquals("Hello world", received.getText());
+		List<MockSpan> mockSpans = mockTracer.finishedSpans();
+		assertEquals(2, mockSpans.size());
 
-    assertTrue(received instanceof SpanContextContainer);
-    SpanContextContainer spanContextContainer = (SpanContextContainer) received;
-    assertNotNull(spanContextContainer.getSpanContext());
+		checkSpans(mockSpans);
+		assertNull(mockTracer.activeSpan());
+	}
 
-    List<MockSpan> mockSpans = mockTracer.finishedSpans();
-    assertEquals(2, mockSpans.size());
+	@Test
+	public void sendAndReceiveJMSProducer() throws Exception {
+		Destination destination = session.createQueue("TEST.FOO");
 
-    checkSpans(mockSpans);
-    assertNull(mockTracer.activeSpan());
-  }
+		JMSProducer jmsProducer = jmsContext.createProducer();
 
-  @Test
-  public void sendAndReceiveJMSProducer() throws Exception {
-    Destination destination = session.createQueue("TEST.FOO");
+		// Instrument MessageProducer with TracingMessageProducer
+		TracingJMSProducer producer = new TracingJMSProducer(jmsProducer, session, mockTracer);
 
-    JMSProducer jmsProducer = jmsContext.createProducer();
+		MessageConsumer messageConsumer = session.createConsumer(destination);
 
-    // Instrument MessageProducer with TracingMessageProducer
-    TracingJMSProducer producer =
-        new TracingJMSProducer(jmsProducer, session, mockTracer);
+		TextMessage message = session.createTextMessage("Hello world");
 
-    MessageConsumer messageConsumer = session.createConsumer(destination);
+		// Instrument MessageConsumer with TracingMessageConsumer
+		TracingMessageConsumer consumer = new TracingMessageConsumer(messageConsumer, mockTracer, true);
 
-    TextMessage message = session.createTextMessage("Hello world");
+		producer.send(destination, message);
 
-    // Instrument MessageConsumer with TracingMessageConsumer
-    TracingMessageConsumer consumer = new TracingMessageConsumer(messageConsumer, mockTracer);
+		TextMessage received = (TextMessage) consumer.receive(5000);
+		assertEquals("Hello world", received.getText());
 
-    producer.send(destination, message);
+		List<MockSpan> mockSpans = mockTracer.finishedSpans();
+		assertEquals(2, mockSpans.size());
 
-    TextMessage received = (TextMessage) consumer.receive(5000);
-    assertEquals("Hello world", received.getText());
+		checkSpans(mockSpans);
+		assertNull(mockTracer.activeSpan());
+	}
 
-    List<MockSpan> mockSpans = mockTracer.finishedSpans();
-    assertEquals(2, mockSpans.size());
+	@Test
+	public void sendAndReceiveInListener() throws Exception {
+		Destination destination = session.createQueue("TEST.FOO");
 
-    checkSpans(mockSpans);
-    assertNull(mockTracer.activeSpan());
-  }
+		MessageProducer messageProducer = session.createProducer(destination);
 
-  @Test
-  public void sendAndReceiveInListener() throws Exception {
-    Destination destination = session.createQueue("TEST.FOO");
+		// Instrument MessageProducer with TracingMessageProducer
+		TracingMessageProducer producer = new TracingMessageProducer(messageProducer, mockTracer);
 
-    MessageProducer messageProducer = session.createProducer(destination);
+		MessageConsumer messageConsumer = session.createConsumer(destination);
 
-    // Instrument MessageProducer with TracingMessageProducer
-    TracingMessageProducer producer =
-        new TracingMessageProducer(messageProducer, mockTracer);
+		final CountDownLatch countDownLatch = new CountDownLatch(1);
+		// Instrument MessageListener with TraceMessageListener
+		MessageListener messageListener = new TracingMessageListener(new MessageListener() {
+			@Override
+			public void onMessage(Message message) {
+				countDownLatch.countDown();
+			}
+		}, mockTracer, false);
 
-    MessageConsumer messageConsumer = session.createConsumer(destination);
+		messageConsumer.setMessageListener(messageListener);
 
-    final CountDownLatch countDownLatch = new CountDownLatch(1);
-    // Instrument MessageListener with TraceMessageListener
-    MessageListener messageListener = new TracingMessageListener(
-        new MessageListener() {
-          @Override
-          public void onMessage(Message message) {
-            countDownLatch.countDown();
-          }
-        }, mockTracer);
+		TextMessage message = session.createTextMessage("Hello world");
 
-    messageConsumer.setMessageListener(messageListener);
+		producer.send(message);
+		countDownLatch.await(15, TimeUnit.SECONDS);
 
-    TextMessage message = session.createTextMessage("Hello world");
+		await().atMost(15, TimeUnit.SECONDS).until(reportedSpansSize(), equalTo(2));
 
-    producer.send(message);
-    countDownLatch.await(15, TimeUnit.SECONDS);
+		List<MockSpan> mockSpans = mockTracer.finishedSpans();
+		assertEquals(2, mockSpans.size());
 
-    await().atMost(15, TimeUnit.SECONDS).until(reportedSpansSize(), equalTo(2));
+		checkSpans(mockSpans);
 
-    List<MockSpan> mockSpans = mockTracer.finishedSpans();
-    assertEquals(2, mockSpans.size());
+		assertNull(mockTracer.activeSpan());
+	}
 
-    checkSpans(mockSpans);
+	private void checkSpans(List<MockSpan> mockSpans) {
+		for (MockSpan mockSpan : mockSpans) {
+			assertTrue(mockSpan.tags().get(Tags.SPAN_KIND.getKey()).equals(Tags.SPAN_KIND_CONSUMER)
+					|| mockSpan.tags().get(Tags.SPAN_KIND.getKey()).equals(Tags.SPAN_KIND_PRODUCER));
+			assertEquals(TracingMessageUtils.COMPONENT_NAME, mockSpan.tags().get(Tags.COMPONENT.getKey()));
+			assertEquals(0, mockSpan.generatedErrors().size());
+			String operationName = mockSpan.operationName();
+			assertTrue(operationName.equals(TracingMessageUtils.OPERATION_NAME_SEND)
+					|| operationName.equals(TracingMessageUtils.OPERATION_NAME_RECEIVE));
+		}
+	}
 
-    assertNull(mockTracer.activeSpan());
-  }
-
-  private void checkSpans(List<MockSpan> mockSpans) {
-    for (MockSpan mockSpan : mockSpans) {
-      assertTrue(mockSpan.tags().get(Tags.SPAN_KIND.getKey()).equals(Tags.SPAN_KIND_CONSUMER)
-          || mockSpan.tags().get(Tags.SPAN_KIND.getKey()).equals(Tags.SPAN_KIND_PRODUCER));
-      assertEquals(TracingMessageUtils.COMPONENT_NAME,
-          mockSpan.tags().get(Tags.COMPONENT.getKey()));
-      assertEquals(0, mockSpan.generatedErrors().size());
-      String operationName = mockSpan.operationName();
-      assertTrue(operationName.equals(TracingMessageUtils.OPERATION_NAME_SEND)
-          || operationName.equals(TracingMessageUtils.OPERATION_NAME_RECEIVE));
-    }
-  }
-
-  private Callable<Integer> reportedSpansSize() {
-    return new Callable<Integer>() {
-      @Override
-      public Integer call() {
-        return mockTracer.finishedSpans().size();
-      }
-    };
-  }
+	private Callable<Integer> reportedSpansSize() {
+		return new Callable<Integer>() {
+			@Override
+			public Integer call() {
+				return mockTracer.finishedSpans().size();
+			}
+		};
+	}
 
 }

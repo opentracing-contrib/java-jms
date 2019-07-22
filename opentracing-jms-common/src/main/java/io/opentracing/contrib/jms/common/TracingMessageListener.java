@@ -28,29 +28,33 @@ public class TracingMessageListener implements MessageListener {
 
 	private final MessageListener messageListener;
 	private final Tracer tracer;
+	private final boolean traceInLog;
 
-	public TracingMessageListener(MessageListener messageListener, Tracer tracer) {
+	public TracingMessageListener(MessageListener messageListener, Tracer tracer, boolean traceInLog) {
 		this.messageListener = messageListener;
 		this.tracer = tracer;
+		this.traceInLog = traceInLog;
 	}
 
 	@Override
 	public void onMessage(Message message) {
 		Span span = TracingMessageUtils.buildFollowingSpan(message, tracer);
-
-		if (span != null) {
-			MDC.put("spanId", span.context().toSpanId());
-			MDC.put("traceId", span.context().toTraceId());
+		if (traceInLog) {
+			if (span != null) {
+				MDC.put("spanId", span.context().toSpanId());
+				MDC.put("traceId", span.context().toTraceId());
+			}
 		}
-
 		try (Scope ignored = tracer.activateSpan(span)) {
 			if (messageListener != null) {
 				messageListener.onMessage(message);
 			}
 		} finally {
 			span.finish();
-			MDC.remove("spanId");
-			MDC.remove("traceId");
+			if (traceInLog) {
+				MDC.remove("spanId");
+				MDC.remove("traceId");
+			}
 		}
 
 	}
