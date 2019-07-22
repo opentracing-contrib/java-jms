@@ -24,7 +24,7 @@ public class ExtendedTracingMessagingMessageListenerAdapter extends
     TracingMessagingMessageListenerAdapter {
 
   protected ExtendedTracingMessagingMessageListenerAdapter(Tracer tracer) {
-    super(tracer);
+    super(tracer,false);
   }
 
   @Override
@@ -39,7 +39,7 @@ public class ExtendedTracingMessagingMessageListenerAdapter extends
 
             }
           }
-        }, tracer);
+        }, tracer,false);
     listener.onMessage(jmsMessage);
   }
 
