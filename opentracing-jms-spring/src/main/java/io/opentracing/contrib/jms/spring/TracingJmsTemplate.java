@@ -31,13 +31,14 @@ public class TracingJmsTemplate extends JmsTemplate {
   private final Tracer tracer;
 
   private final boolean traceInLog;
-  
-  public TracingJmsTemplate(Tracer tracer,boolean traceInLog) {
+
+  public TracingJmsTemplate(Tracer tracer, boolean traceInLog) {
     this.tracer = tracer;
     this.traceInLog = traceInLog;
   }
 
-  public TracingJmsTemplate(ConnectionFactory connectionFactory, Tracer tracer,boolean traceInLog) {
+  public TracingJmsTemplate(ConnectionFactory connectionFactory, Tracer tracer,
+      boolean traceInLog) {
     super(connectionFactory);
     this.tracer = tracer;
     this.traceInLog = traceInLog;
@@ -51,9 +52,8 @@ public class TracingJmsTemplate extends JmsTemplate {
 
   @Override
   protected MessageConsumer createConsumer(Session session, Destination destination,
-      String messageSelector)
-      throws JMSException {
+      String messageSelector) throws JMSException {
     return new TracingMessageConsumer(super.createConsumer(session, destination, messageSelector),
-        tracer,traceInLog);
+        tracer, traceInLog);
   }
 }

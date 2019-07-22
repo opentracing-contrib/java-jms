@@ -27,7 +27,7 @@ import org.springframework.jms.listener.adapter.MessagingMessageListenerAdapter;
 public class TracingMessagingMessageListenerAdapter extends MessagingMessageListenerAdapter {
 
   protected Tracer tracer;
-  
+
   protected boolean traceInLog;
 
   protected TracingMessagingMessageListenerAdapter(Tracer tracer, boolean traceInLog) {
@@ -37,13 +37,12 @@ public class TracingMessagingMessageListenerAdapter extends MessagingMessageList
 
   @Override
   public void onMessage(final Message jmsMessage, final Session session) throws JMSException {
-    TracingMessageListener listener = new TracingMessageListener(
-        new MessageListener() {
-          @Override
-          public void onMessage(Message message) {
-            onMessageInternal(message, session);
-          }
-        }, tracer,traceInLog);
+    TracingMessageListener listener = new TracingMessageListener(new MessageListener() {
+      @Override
+      public void onMessage(Message message) {
+        onMessageInternal(message, session);
+      }
+    }, tracer, traceInLog);
     listener.onMessage(jmsMessage);
   }
 
@@ -67,6 +66,6 @@ public class TracingMessagingMessageListenerAdapter extends MessagingMessageList
   }
 
   protected TracingMessagingMessageListenerAdapter newInstance() {
-    return new TracingMessagingMessageListenerAdapter(tracer,traceInLog);
+    return new TracingMessagingMessageListenerAdapter(tracer, traceInLog);
   }
 }

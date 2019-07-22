@@ -180,8 +180,8 @@ public class TracingMessageProducer implements MessageProducer {
   public void send(Destination destination, Message message, CompletionListener completionListener)
       throws JMSException {
     Span span = TracingMessageUtils.buildAndInjectSpan(destination, message, tracer);
-    messageProducer
-        .send(destination, message, new TracingCompletionListener(span, completionListener));
+    messageProducer.send(destination, message,
+        new TracingCompletionListener(span, completionListener));
   }
 
   @Override

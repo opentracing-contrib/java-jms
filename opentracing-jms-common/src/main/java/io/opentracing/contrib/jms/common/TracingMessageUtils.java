@@ -51,8 +51,7 @@ public class TracingMessageUtils {
   public static Span buildFollowingSpan(Message message, Tracer tracer) {
     SpanContext context = extract(message, tracer);
 
-    Tracer.SpanBuilder spanBuilder = tracer.buildSpan(OPERATION_NAME_RECEIVE)
-        .ignoreActiveSpan()
+    Tracer.SpanBuilder spanBuilder = tracer.buildSpan(OPERATION_NAME_RECEIVE).ignoreActiveSpan()
         .withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_CONSUMER);
 
     // if context is null this is a no-op
@@ -73,8 +72,8 @@ public class TracingMessageUtils {
    * @return extracted span context
    */
   public static SpanContext extract(Message message, Tracer tracer) {
-    SpanContext spanContext = tracer
-        .extract(Format.Builtin.TEXT_MAP, new JmsTextMapExtractAdapter(message));
+    SpanContext spanContext =
+        tracer.extract(Format.Builtin.TEXT_MAP, new JmsTextMapExtractAdapter(message));
     if (spanContext != null) {
       return spanContext;
     }
@@ -105,8 +104,7 @@ public class TracingMessageUtils {
   public static Span buildAndInjectSpan(Destination destination, final Message message,
       Tracer tracer) {
     Tracer.SpanBuilder spanBuilder = tracer.buildSpan(TracingMessageUtils.OPERATION_NAME_SEND)
-        .ignoreActiveSpan()
-        .withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_PRODUCER);
+        .ignoreActiveSpan().withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_PRODUCER);
 
     SpanContext parent = TracingMessageUtils.extract(message, tracer);
 

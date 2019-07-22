@@ -18,7 +18,6 @@ import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-
 import io.opentracing.contrib.jms.common.TracingMessageUtils;
 import io.opentracing.mock.MockSpan;
 import io.opentracing.mock.MockTracer;
