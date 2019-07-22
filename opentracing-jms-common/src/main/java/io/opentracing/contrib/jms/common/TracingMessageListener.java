@@ -13,37 +13,49 @@
  */
 package io.opentracing.contrib.jms.common;
 
-
 import io.opentracing.Scope;
 import io.opentracing.Span;
 import io.opentracing.Tracer;
 import javax.jms.Message;
 import javax.jms.MessageListener;
 
+import org.slf4j.MDC;
+
 /**
  * Tracing decorator for JMS MessageListener
  */
 public class TracingMessageListener implements MessageListener {
 
-  private final MessageListener messageListener;
-  private final Tracer tracer;
+	private final MessageListener messageListener;
+	private final Tracer tracer;
+	private final boolean traceInLog;
 
-  public TracingMessageListener(MessageListener messageListener, Tracer tracer) {
-    this.messageListener = messageListener;
-    this.tracer = tracer;
-  }
+	public TracingMessageListener(MessageListener messageListener, Tracer tracer, boolean traceInLog) {
+		this.messageListener = messageListener;
+		this.tracer = tracer;
+		this.traceInLog = traceInLog;
+	}
 
-  @Override
-  public void onMessage(Message message) {
-    Span span = TracingMessageUtils.buildFollowingSpan(message, tracer);
+	@Override
+	public void onMessage(Message message) {
+		Span span = TracingMessageUtils.buildFollowingSpan(message, tracer);
+		if (traceInLog) {
+			if (span != null) {
+				MDC.put("spanId", span.context().toSpanId());
+				MDC.put("traceId", span.context().toTraceId());
+			}
+		}
+		try (Scope ignored = tracer.activateSpan(span)) {
+			if (messageListener != null) {
+				messageListener.onMessage(message);
+			}
+		} finally {
+			span.finish();
+			if (traceInLog) {
+				MDC.remove("spanId");
+				MDC.remove("traceId");
+			}
+		}
 
-    try (Scope ignored = tracer.activateSpan(span)) {
-      if (messageListener != null) {
-        messageListener.onMessage(message);
-      }
-    } finally {
-      span.finish();
-    }
-
-  }
+	}
 }

@@ -57,7 +57,7 @@ public class TestConfiguration {
   @Profile("extended")
   public TracingMessagingMessageListenerAdapter tracingMessagingMessageListenerAdapter(
       Tracer tracer) {
-    return new ExtendedTracingMessagingMessageListenerAdapter(tracer);
+    return new ExtendedTracingMessagingMessageListenerAdapter(tracer,false);
   }
 
   @Bean
