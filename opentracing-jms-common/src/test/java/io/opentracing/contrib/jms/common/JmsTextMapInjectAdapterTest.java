@@ -15,7 +15,6 @@ package io.opentracing.contrib.jms.common;
 
 import static io.opentracing.contrib.jms.common.JmsTextMapInjectAdapter.DASH;
 import static org.junit.Assert.assertEquals;
-
 import javax.jms.JMSException;
 import org.apache.activemq.command.ActiveMQTextMessage;
 import org.junit.Before;

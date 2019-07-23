@@ -97,36 +97,31 @@ public class TracingConnection implements Connection {
 
   @Override
   public ConnectionConsumer createConnectionConsumer(Destination destination,
-      String messageSelector,
-      ServerSessionPool sessionPool, int maxMessages) throws JMSException {
-    return connection
-        .createConnectionConsumer(destination, messageSelector, sessionPool, maxMessages);
+      String messageSelector, ServerSessionPool sessionPool, int maxMessages) throws JMSException {
+    return connection.createConnectionConsumer(destination, messageSelector, sessionPool,
+        maxMessages);
   }
 
   @Override
   public ConnectionConsumer createSharedConnectionConsumer(Topic topic, String subscriptionName,
       String messageSelector, ServerSessionPool sessionPool, int maxMessages) throws JMSException {
-    return connection
-        .createSharedConnectionConsumer(topic, subscriptionName, messageSelector, sessionPool,
-            maxMessages);
+    return connection.createSharedConnectionConsumer(topic, subscriptionName, messageSelector,
+        sessionPool, maxMessages);
   }
 
   @Override
   public ConnectionConsumer createDurableConnectionConsumer(Topic topic, String subscriptionName,
       String messageSelector, ServerSessionPool sessionPool, int maxMessages) throws JMSException {
-    return connection
-        .createDurableConnectionConsumer(topic, subscriptionName, messageSelector, sessionPool,
-            maxMessages);
+    return connection.createDurableConnectionConsumer(topic, subscriptionName, messageSelector,
+        sessionPool, maxMessages);
   }
 
   @Override
   public ConnectionConsumer createSharedDurableConnectionConsumer(Topic topic,
-      String subscriptionName,
-      String messageSelector, ServerSessionPool sessionPool, int maxMessages) throws JMSException {
-    return connection
-        .createSharedDurableConnectionConsumer(topic, subscriptionName, messageSelector,
-            sessionPool,
-            maxMessages);
+      String subscriptionName, String messageSelector, ServerSessionPool sessionPool,
+      int maxMessages) throws JMSException {
+    return connection.createSharedDurableConnectionConsumer(topic, subscriptionName,
+        messageSelector, sessionPool, maxMessages);
   }
 
 }

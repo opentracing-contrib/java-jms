@@ -22,8 +22,7 @@ import javax.jms.Message;
 /**
  * Listener for sending messages.
  * <p>
- * If sending of the message is complete then method {@code onCompletion(Message)} is called.
- * <br>
+ * If sending of the message is complete then method {@code onCompletion(Message)} is called. <br>
  * If sending of the message fails then method {@code onException(Exception)} is called.
  */
 public class TracingCompletionListener implements CompletionListener {

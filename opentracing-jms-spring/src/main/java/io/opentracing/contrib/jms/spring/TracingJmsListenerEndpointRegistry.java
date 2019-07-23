@@ -25,8 +25,8 @@ import org.springframework.jms.listener.adapter.MessagingMessageListenerAdapter;
 import org.springframework.messaging.handler.annotation.support.DefaultMessageHandlerMethodFactory;
 import org.springframework.messaging.handler.annotation.support.MessageHandlerMethodFactory;
 
-public class TracingJmsListenerEndpointRegistry extends JmsListenerEndpointRegistry implements
-    BeanFactoryAware {
+public class TracingJmsListenerEndpointRegistry extends JmsListenerEndpointRegistry
+    implements BeanFactoryAware {
 
   private TracingMessagingMessageListenerAdapter listenerAdapter;
   private BeanFactory beanFactory;
@@ -61,8 +61,8 @@ public class TracingJmsListenerEndpointRegistry extends JmsListenerEndpointRegis
     replacement.setBean(original.getBean());
     replacement.setMethod(original.getMethod());
     replacement.setMostSpecificMethod(original.getMostSpecificMethod());
-    MessageHandlerMethodFactory messageHandlerMethodFactory = registrar
-        .getMessageHandlerMethodFactory();
+    MessageHandlerMethodFactory messageHandlerMethodFactory =
+        registrar.getMessageHandlerMethodFactory();
     if (messageHandlerMethodFactory == null) {
       messageHandlerMethodFactory = createDefaultJmsHandlerMethodFactory();
     }

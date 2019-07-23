@@ -19,7 +19,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-
 import io.opentracing.contrib.jms.common.SpanContextContainer;
 import io.opentracing.contrib.jms.common.TracingMessageConsumer;
 import io.opentracing.contrib.jms.common.TracingMessageListener;
@@ -106,8 +105,7 @@ public class TracingArtemisTest {
     MessageProducer messageProducer = session.createProducer(queue);
 
     // Instrument MessageProducer with TracingMessageProducer
-    TracingMessageProducer producer =
-        new TracingMessageProducer(messageProducer, mockTracer);
+    TracingMessageProducer producer = new TracingMessageProducer(messageProducer, mockTracer);
 
     MessageConsumer messageConsumer = session.createConsumer(queue);
 
@@ -135,8 +133,7 @@ public class TracingArtemisTest {
     MessageProducer messageProducer = session.createProducer(queue);
 
     // Instrument MessageProducer with TracingMessageProducer
-    TracingMessageProducer producer =
-        new TracingMessageProducer(messageProducer, mockTracer);
+    TracingMessageProducer producer = new TracingMessageProducer(messageProducer, mockTracer);
 
     MessageConsumer messageConsumer = session.createConsumer(queue);
 
@@ -168,8 +165,7 @@ public class TracingArtemisTest {
     JMSProducer jmsProducer = jmsContext.createProducer();
 
     // Instrument MessageProducer with TracingMessageProducer
-    TracingJMSProducer producer =
-        new TracingJMSProducer(jmsProducer, session, mockTracer);
+    TracingJMSProducer producer = new TracingJMSProducer(jmsProducer, session, mockTracer);
 
     MessageConsumer messageConsumer = session.createConsumer(destination);
 
@@ -197,20 +193,18 @@ public class TracingArtemisTest {
     MessageProducer messageProducer = session.createProducer(destination);
 
     // Instrument MessageProducer with TracingMessageProducer
-    TracingMessageProducer producer =
-        new TracingMessageProducer(messageProducer, mockTracer);
+    TracingMessageProducer producer = new TracingMessageProducer(messageProducer, mockTracer);
 
     MessageConsumer messageConsumer = session.createConsumer(destination);
 
     final CountDownLatch countDownLatch = new CountDownLatch(1);
     // Instrument MessageListener with TraceMessageListener
-    MessageListener messageListener = new TracingMessageListener(
-        new MessageListener() {
-          @Override
-          public void onMessage(Message message) {
-            countDownLatch.countDown();
-          }
-        }, mockTracer);
+    MessageListener messageListener = new TracingMessageListener(new MessageListener() {
+      @Override
+      public void onMessage(Message message) {
+        countDownLatch.countDown();
+      }
+    }, mockTracer);
 
     messageConsumer.setMessageListener(messageListener);
 

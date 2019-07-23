@@ -20,7 +20,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-
 import io.opentracing.contrib.jms.common.SpanContextContainer;
 import io.opentracing.contrib.jms.common.TracingMessageConsumer;
 import io.opentracing.contrib.jms.common.TracingMessageListener;
@@ -57,8 +56,8 @@ public class TracingActiveMQTest {
   public void before() throws Exception {
     mockTracer.reset();
 
-    ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory(
-        "vm://localhost?broker.persistent=false");
+    ActiveMQConnectionFactory connectionFactory =
+        new ActiveMQConnectionFactory("vm://localhost?broker.persistent=false");
     connection = connectionFactory.createConnection();
     connection.start();
     session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -78,8 +77,7 @@ public class TracingActiveMQTest {
     messageProducer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
 
     // Instrument MessageProducer with TracingMessageProducer
-    TracingMessageProducer producer =
-        new TracingMessageProducer(messageProducer, mockTracer);
+    TracingMessageProducer producer = new TracingMessageProducer(messageProducer, mockTracer);
 
     MessageConsumer messageConsumer = session.createConsumer(destination);
 
@@ -108,8 +106,7 @@ public class TracingActiveMQTest {
     messageProducer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
 
     // Instrument MessageProducer with TracingMessageProducer
-    TracingMessageProducer producer =
-        new TracingMessageProducer(messageProducer, mockTracer);
+    TracingMessageProducer producer = new TracingMessageProducer(messageProducer, mockTracer);
 
     MessageConsumer messageConsumer = session.createConsumer(destination);
 
@@ -141,21 +138,19 @@ public class TracingActiveMQTest {
     messageProducer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
 
     // Instrument MessageProducer with TracingMessageProducer
-    TracingMessageProducer producer =
-        new TracingMessageProducer(messageProducer, mockTracer);
+    TracingMessageProducer producer = new TracingMessageProducer(messageProducer, mockTracer);
 
     MessageConsumer messageConsumer = session.createConsumer(destination);
 
     final CountDownLatch countDownLatch = new CountDownLatch(1);
     // Instrument MessageListener with TraceMessageListener
-    MessageListener messageListener = new TracingMessageListener(
-        new MessageListener() {
-          @Override
-          public void onMessage(Message message) {
-            assertNotNull(mockTracer.activeSpan());
-            countDownLatch.countDown();
-          }
-        }, mockTracer);
+    MessageListener messageListener = new TracingMessageListener(new MessageListener() {
+      @Override
+      public void onMessage(Message message) {
+        assertNotNull(mockTracer.activeSpan());
+        countDownLatch.countDown();
+      }
+    }, mockTracer);
 
     messageConsumer.setMessageListener(messageListener);
 
@@ -182,11 +177,10 @@ public class TracingActiveMQTest {
     messageProducer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
 
     // Instrument MessageProducer with TracingMessageProducer
-    TracingMessageProducer producer =
-        new TracingMessageProducer(messageProducer, mockTracer);
+    TracingMessageProducer producer = new TracingMessageProducer(messageProducer, mockTracer);
 
-    MessageConsumer messageConsumer = new TracingMessageConsumer(
-        session.createConsumer(destination), mockTracer, false);
+    MessageConsumer messageConsumer =
+        new TracingMessageConsumer(session.createConsumer(destination), mockTracer, false);
 
     final CountDownLatch countDownLatch = new CountDownLatch(1);
     MessageListener messageListener = new MessageListener() {

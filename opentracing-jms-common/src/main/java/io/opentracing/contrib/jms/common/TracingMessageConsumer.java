@@ -117,8 +117,7 @@ public class TracingMessageConsumer implements MessageConsumer {
     System.arraycopy(interfaces, 0, allInterfaces, 0, interfaces.length);
     allInterfaces[interfaces.length] = SpanContextContainer.class;
 
-    return (Message) Proxy.newProxyInstance(message.getClass().getClassLoader(),
-        allInterfaces,
+    return (Message) Proxy.newProxyInstance(message.getClass().getClassLoader(), allInterfaces,
         new InvocationHandler() {
           @Override
           public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {

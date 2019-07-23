@@ -20,8 +20,8 @@ import javax.jms.Message;
 import javax.jms.MessageListener;
 import javax.jms.Session;
 
-public class ExtendedTracingMessagingMessageListenerAdapter extends
-    TracingMessagingMessageListenerAdapter {
+public class ExtendedTracingMessagingMessageListenerAdapter
+    extends TracingMessagingMessageListenerAdapter {
 
   protected ExtendedTracingMessagingMessageListenerAdapter(Tracer tracer) {
     super(tracer);
@@ -29,17 +29,16 @@ public class ExtendedTracingMessagingMessageListenerAdapter extends
 
   @Override
   public void onMessage(final Message jmsMessage, final Session session) {
-    TracingMessageListener listener = new TracingMessageListener(
-        new MessageListener() {
-          @Override
-          public void onMessage(Message message) {
-            try {
-              jmsMessage.acknowledge();
-            } catch (JMSException e) {
+    TracingMessageListener listener = new TracingMessageListener(new MessageListener() {
+      @Override
+      public void onMessage(Message message) {
+        try {
+          jmsMessage.acknowledge();
+        } catch (JMSException e) {
 
-            }
-          }
-        }, tracer, traceInLog);
+        }
+      }
+    }, tracer, traceInLog);
     listener.onMessage(jmsMessage);
   }
 

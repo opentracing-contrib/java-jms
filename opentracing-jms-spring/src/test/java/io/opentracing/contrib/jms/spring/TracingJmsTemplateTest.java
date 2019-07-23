@@ -19,7 +19,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-
 import io.opentracing.contrib.jms.common.TracingMessageUtils;
 import io.opentracing.mock.MockSpan;
 import io.opentracing.mock.MockTracer;
@@ -99,7 +98,7 @@ public class TracingJmsTemplateTest {
       }
     });
     assertNotNull(message);
-    assertEquals("MESSAGE", ((TextMessage)message).getText());
+    assertEquals("MESSAGE", ((TextMessage) message).getText());
 
     List<MockSpan> mockSpans = mockTracer.finishedSpans();
     assertEquals(4, mockSpans.size());
