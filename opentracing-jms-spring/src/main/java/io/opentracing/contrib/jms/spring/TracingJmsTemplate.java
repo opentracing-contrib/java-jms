@@ -25,18 +25,22 @@ import org.springframework.jms.core.JmsTemplate;
 public class TracingJmsTemplate extends JmsTemplate {
 
   private final Tracer tracer;
+  
+  private final boolean traceInLog;
 
-  public TracingJmsTemplate(Tracer tracer) {
+  public TracingJmsTemplate(Tracer tracer,boolean traceInLog) {
     this.tracer = tracer;
+    this.traceInLog=traceInLog;
   }
 
-  public TracingJmsTemplate(ConnectionFactory connectionFactory, Tracer tracer) {
+  public TracingJmsTemplate(ConnectionFactory connectionFactory, Tracer tracer,boolean traceInLog) {
     super(connectionFactory);
     this.tracer = tracer;
+    this.traceInLog=traceInLog;
   }
 
   @Override
   protected Connection createConnection() throws JMSException {
-    return new TracingConnection(super.createConnection(), tracer);
+    return new TracingConnection(super.createConnection(), tracer,traceInLog);
   }
 }
