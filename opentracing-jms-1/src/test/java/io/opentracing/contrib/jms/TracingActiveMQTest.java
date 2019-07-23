@@ -84,7 +84,7 @@ public class TracingActiveMQTest {
     MessageConsumer messageConsumer = session.createConsumer(destination);
 
     // Instrument MessageConsumer with TracingMessageConsumer
-    TracingMessageConsumer consumer = new TracingMessageConsumer(messageConsumer, mockTracer);
+    TracingMessageConsumer consumer = new TracingMessageConsumer(messageConsumer, mockTracer,false);
 
     TextMessage message = session.createTextMessage("Hello world");
 
@@ -114,7 +114,7 @@ public class TracingActiveMQTest {
     MessageConsumer messageConsumer = session.createConsumer(destination);
 
     // Instrument MessageConsumer with TracingMessageConsumer
-    TracingMessageConsumer consumer = new TracingMessageConsumer(messageConsumer, mockTracer, true);
+    TracingMessageConsumer consumer = new TracingMessageConsumer(messageConsumer, mockTracer, true,false);
 
     TextMessage message = session.createTextMessage("Hello world");
     producer.send(message);
@@ -155,7 +155,7 @@ public class TracingActiveMQTest {
             assertNotNull(mockTracer.activeSpan());
             countDownLatch.countDown();
           }
-        }, mockTracer);
+        }, mockTracer,false);
 
     messageConsumer.setMessageListener(messageListener);
 
@@ -186,7 +186,7 @@ public class TracingActiveMQTest {
         new TracingMessageProducer(messageProducer, mockTracer);
 
     MessageConsumer messageConsumer = new TracingMessageConsumer(
-        session.createConsumer(destination), mockTracer);
+        session.createConsumer(destination), mockTracer,false);
 
     final CountDownLatch countDownLatch = new CountDownLatch(1);
     MessageListener messageListener = new MessageListener() {

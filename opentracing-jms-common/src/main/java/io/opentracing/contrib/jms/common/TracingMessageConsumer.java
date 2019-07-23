@@ -31,16 +31,18 @@ public class TracingMessageConsumer implements MessageConsumer {
   private final MessageConsumer messageConsumer;
   private final Tracer tracer;
   private final boolean proxyMessage;
+  private final boolean traceInLog;
 
-  public TracingMessageConsumer(MessageConsumer messageConsumer, Tracer tracer) {
-    this(messageConsumer, tracer, false);
+  public TracingMessageConsumer(MessageConsumer messageConsumer, Tracer tracer, boolean traceInLog) {
+    this(messageConsumer, tracer, false, traceInLog);
   }
 
   public TracingMessageConsumer(MessageConsumer messageConsumer, Tracer tracer,
-      boolean proxyMessage) {
+      boolean proxyMessage, boolean traceInLog) {
     this.messageConsumer = messageConsumer;
     this.tracer = tracer;
     this.proxyMessage = proxyMessage;
+    this.traceInLog=traceInLog;
   }
 
   @Override
@@ -58,7 +60,7 @@ public class TracingMessageConsumer implements MessageConsumer {
     if (listener instanceof TracingMessageConsumer) {
       messageConsumer.setMessageListener(listener);
     } else {
-      messageConsumer.setMessageListener(new TracingMessageListener(listener, tracer));
+      messageConsumer.setMessageListener(new TracingMessageListener(listener, tracer,traceInLog));
     }
   }
 
