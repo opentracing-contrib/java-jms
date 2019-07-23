@@ -18,7 +18,6 @@ import io.opentracing.Span;
 import io.opentracing.Tracer;
 import javax.jms.Message;
 import javax.jms.MessageListener;
-
 import org.slf4j.MDC;
 
 /**
@@ -30,7 +29,12 @@ public class TracingMessageListener implements MessageListener {
   private final Tracer tracer;
   private final boolean traceInLog;
 
-  public TracingMessageListener(MessageListener messageListener, Tracer tracer, boolean traceInLog) {
+  public TracingMessageListener(MessageListener messageListener, Tracer tracer) {
+    this(messageListener, tracer, false);
+  }
+
+  public TracingMessageListener(MessageListener messageListener, Tracer tracer,
+      boolean traceInLog) {
     this.messageListener = messageListener;
     this.tracer = tracer;
     this.traceInLog = traceInLog;

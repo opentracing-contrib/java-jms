@@ -29,6 +29,10 @@ public class TracingMessagingMessageListenerAdapter extends MessagingMessageList
   protected Tracer tracer;
   protected boolean traceInLog;
 
+  protected TracingMessagingMessageListenerAdapter(Tracer tracer) {
+    this(tracer, false);
+  }
+
   protected TracingMessagingMessageListenerAdapter(Tracer tracer, boolean traceInLog) {
     this.tracer = tracer;
     this.traceInLog = traceInLog;
@@ -41,7 +45,7 @@ public class TracingMessagingMessageListenerAdapter extends MessagingMessageList
       public void onMessage(Message message) {
         onMessageInternal(message, session);
       }
-    }, tracer,traceInLog);
+    }, tracer, traceInLog);
     listener.onMessage(jmsMessage);
   }
 
@@ -54,7 +58,8 @@ public class TracingMessagingMessageListenerAdapter extends MessagingMessageList
   }
 
   @Override
-  protected void sendResponse(Session session, Destination destination, Message response) throws JMSException {
+  protected void sendResponse(Session session, Destination destination, Message response)
+      throws JMSException {
     Span span = TracingMessageUtils.buildAndInjectSpan(destination, response, tracer);
     try {
       super.sendResponse(session, destination, response);
@@ -64,6 +69,6 @@ public class TracingMessagingMessageListenerAdapter extends MessagingMessageList
   }
 
   protected TracingMessagingMessageListenerAdapter newInstance() {
-    return new TracingMessagingMessageListenerAdapter(tracer,traceInLog);
+    return new TracingMessagingMessageListenerAdapter(tracer, traceInLog);
   }
 }

@@ -23,8 +23,8 @@ import javax.jms.Session;
 public class ExtendedTracingMessagingMessageListenerAdapter extends
     TracingMessagingMessageListenerAdapter {
 
-  protected ExtendedTracingMessagingMessageListenerAdapter(Tracer tracer, boolean traceInLog) {
-    super(tracer,traceInLog);
+  protected ExtendedTracingMessagingMessageListenerAdapter(Tracer tracer) {
+    super(tracer);
   }
 
   @Override
@@ -39,12 +39,12 @@ public class ExtendedTracingMessagingMessageListenerAdapter extends
 
             }
           }
-        }, tracer,traceInLog);
+        }, tracer, traceInLog);
     listener.onMessage(jmsMessage);
   }
 
   @Override
   protected TracingMessagingMessageListenerAdapter newInstance() {
-    return new ExtendedTracingMessagingMessageListenerAdapter(tracer,traceInLog);
+    return new ExtendedTracingMessagingMessageListenerAdapter(tracer);
   }
 }

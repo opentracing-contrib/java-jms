@@ -112,7 +112,7 @@ public class TracingArtemisTest {
     MessageConsumer messageConsumer = session.createConsumer(queue);
 
     // Instrument MessageConsumer with TracingMessageConsumer
-    TracingMessageConsumer consumer = new TracingMessageConsumer(messageConsumer, mockTracer,false);
+    TracingMessageConsumer consumer = new TracingMessageConsumer(messageConsumer, mockTracer);
 
     TextMessage message = session.createTextMessage("Hello world");
 
@@ -141,7 +141,7 @@ public class TracingArtemisTest {
     MessageConsumer messageConsumer = session.createConsumer(queue);
 
     // Instrument MessageConsumer with TracingMessageConsumer
-    TracingMessageConsumer consumer = new TracingMessageConsumer(messageConsumer, mockTracer, true,false);
+    TracingMessageConsumer consumer = new TracingMessageConsumer(messageConsumer, mockTracer, true);
 
     TextMessage message = session.createTextMessage("Hello world");
 
@@ -176,7 +176,7 @@ public class TracingArtemisTest {
     TextMessage message = session.createTextMessage("Hello world");
 
     // Instrument MessageConsumer with TracingMessageConsumer
-    TracingMessageConsumer consumer = new TracingMessageConsumer(messageConsumer, mockTracer,false);
+    TracingMessageConsumer consumer = new TracingMessageConsumer(messageConsumer, mockTracer);
 
     producer.send(destination, message);
 
@@ -210,7 +210,7 @@ public class TracingArtemisTest {
           public void onMessage(Message message) {
             countDownLatch.countDown();
           }
-        }, mockTracer,false);
+        }, mockTracer);
 
     messageConsumer.setMessageListener(messageListener);
 

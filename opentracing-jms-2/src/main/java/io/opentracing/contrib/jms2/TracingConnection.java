@@ -29,6 +29,10 @@ public class TracingConnection implements Connection {
   private final Tracer tracer;
   private final boolean traceInLog;
 
+  public TracingConnection(Connection connection, Tracer tracer) {
+    this(connection, tracer, false);
+  }
+
   public TracingConnection(Connection connection, Tracer tracer, boolean traceInLog) {
     this.connection = connection;
     this.tracer = tracer;
@@ -37,17 +41,18 @@ public class TracingConnection implements Connection {
 
   @Override
   public Session createSession(boolean transacted, int acknowledgeMode) throws JMSException {
-    return new TracingSession(connection.createSession(transacted, acknowledgeMode), tracer,traceInLog);
+    return new TracingSession(connection.createSession(transacted, acknowledgeMode), tracer,
+        traceInLog);
   }
 
   @Override
   public Session createSession(int sessionMode) throws JMSException {
-    return new TracingSession(connection.createSession(sessionMode), tracer,traceInLog);
+    return new TracingSession(connection.createSession(sessionMode), tracer, traceInLog);
   }
 
   @Override
   public Session createSession() throws JMSException {
-    return new TracingSession(connection.createSession(), tracer,traceInLog);
+    return new TracingSession(connection.createSession(), tracer, traceInLog);
   }
 
   @Override
@@ -91,30 +96,37 @@ public class TracingConnection implements Connection {
   }
 
   @Override
-  public ConnectionConsumer createConnectionConsumer(Destination destination, String messageSelector,
+  public ConnectionConsumer createConnectionConsumer(Destination destination,
+      String messageSelector,
       ServerSessionPool sessionPool, int maxMessages) throws JMSException {
-    return connection.createConnectionConsumer(destination, messageSelector, sessionPool, maxMessages);
+    return connection
+        .createConnectionConsumer(destination, messageSelector, sessionPool, maxMessages);
   }
 
   @Override
   public ConnectionConsumer createSharedConnectionConsumer(Topic topic, String subscriptionName,
       String messageSelector, ServerSessionPool sessionPool, int maxMessages) throws JMSException {
-    return connection.createSharedConnectionConsumer(topic, subscriptionName, messageSelector, sessionPool,
-        maxMessages);
+    return connection
+        .createSharedConnectionConsumer(topic, subscriptionName, messageSelector, sessionPool,
+            maxMessages);
   }
 
   @Override
   public ConnectionConsumer createDurableConnectionConsumer(Topic topic, String subscriptionName,
       String messageSelector, ServerSessionPool sessionPool, int maxMessages) throws JMSException {
-    return connection.createDurableConnectionConsumer(topic, subscriptionName, messageSelector, sessionPool,
-        maxMessages);
+    return connection
+        .createDurableConnectionConsumer(topic, subscriptionName, messageSelector, sessionPool,
+            maxMessages);
   }
 
   @Override
-  public ConnectionConsumer createSharedDurableConnectionConsumer(Topic topic, String subscriptionName,
+  public ConnectionConsumer createSharedDurableConnectionConsumer(Topic topic,
+      String subscriptionName,
       String messageSelector, ServerSessionPool sessionPool, int maxMessages) throws JMSException {
-    return connection.createSharedDurableConnectionConsumer(topic, subscriptionName, messageSelector, sessionPool,
-        maxMessages);
+    return connection
+        .createSharedDurableConnectionConsumer(topic, subscriptionName, messageSelector,
+            sessionPool,
+            maxMessages);
   }
 
 }

@@ -40,6 +40,10 @@ public class TracingSession implements Session {
   private final Tracer tracer;
   private final boolean traceInLog;
 
+  public TracingSession(Session session, Tracer tracer) {
+    this(session, tracer, false);
+  }
+
   public TracingSession(Session session, Tracer tracer, boolean traceInLog) {
     this.session = session;
     this.tracer = tracer;
@@ -138,31 +142,36 @@ public class TracingSession implements Session {
 
   @Override
   public MessageConsumer createConsumer(Destination destination) throws JMSException {
-    return new TracingMessageConsumer(session.createConsumer(destination), tracer,traceInLog);
+    return new TracingMessageConsumer(session.createConsumer(destination), tracer, traceInLog);
   }
 
   @Override
   public MessageConsumer createConsumer(Destination destination,
       String messageSelector) throws JMSException {
-    return new TracingMessageConsumer(session.createConsumer(destination, messageSelector), tracer,traceInLog);
+    return new TracingMessageConsumer(session.createConsumer(destination, messageSelector), tracer,
+        traceInLog);
   }
 
   @Override
   public MessageConsumer createConsumer(Destination destination,
       String messageSelector, boolean noLocal) throws JMSException {
-    return new TracingMessageConsumer(session.createConsumer(destination, messageSelector, noLocal), tracer,traceInLog);
+    return new TracingMessageConsumer(session.createConsumer(destination, messageSelector, noLocal),
+        tracer, traceInLog);
   }
 
   @Override
   public MessageConsumer createSharedConsumer(Topic topic,
       String sharedSubscriptionName) throws JMSException {
-    return new TracingMessageConsumer(session.createSharedConsumer(topic, sharedSubscriptionName), tracer,traceInLog);
+    return new TracingMessageConsumer(session.createSharedConsumer(topic, sharedSubscriptionName),
+        tracer, traceInLog);
   }
 
   @Override
   public MessageConsumer createSharedConsumer(Topic topic,
       String sharedSubscriptionName, String messageSelector) throws JMSException {
-    return new TracingMessageConsumer(session.createSharedConsumer(topic, sharedSubscriptionName, messageSelector), tracer,traceInLog);
+    return new TracingMessageConsumer(
+        session.createSharedConsumer(topic, sharedSubscriptionName, messageSelector), tracer,
+        traceInLog);
   }
 
   @Override
@@ -195,19 +204,22 @@ public class TracingSession implements Session {
   @Override
   public MessageConsumer createDurableConsumer(Topic topic, String name,
       String messageSelector, boolean noLocal) throws JMSException {
-    return new TracingMessageConsumer(session.createDurableConsumer(topic, name, messageSelector, noLocal), tracer,traceInLog);
+    return new TracingMessageConsumer(
+        session.createDurableConsumer(topic, name, messageSelector, noLocal), tracer, traceInLog);
   }
 
   @Override
   public MessageConsumer createSharedDurableConsumer(Topic topic,
       String name) throws JMSException {
-    return new TracingMessageConsumer(session.createSharedDurableConsumer(topic, name), tracer,traceInLog);
+    return new TracingMessageConsumer(session.createSharedDurableConsumer(topic, name), tracer,
+        traceInLog);
   }
 
   @Override
   public MessageConsumer createSharedDurableConsumer(Topic topic,
       String name, String messageSelector) throws JMSException {
-    return new TracingMessageConsumer(session.createSharedDurableConsumer(topic, name, messageSelector), tracer,traceInLog);
+    return new TracingMessageConsumer(
+        session.createSharedDurableConsumer(topic, name, messageSelector), tracer, traceInLog);
   }
 
   @Override
