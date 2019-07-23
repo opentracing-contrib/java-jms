@@ -229,7 +229,7 @@
         <version>2.10.0</version>
         <configuration>
           <encoding>UTF-8</encoding>
-          <configFile>${maven.multiModuleProjectDirectory}\google-style-formatter.xml</configFile>
+          <configFile>${maven.multiModuleProjectDirectory}/google-style-formatter.xml</configFile>
         </configuration>
         <executions>
           <execution>
