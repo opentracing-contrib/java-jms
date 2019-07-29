@@ -20,6 +20,7 @@ import org.springframework.aop.target.AbstractLazyCreationTargetSource;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jms.annotation.JmsListenerConfigurer;
@@ -39,24 +40,28 @@ public class TracingJmsConfiguration {
   }
 
   @Bean
+  @ConditionalOnMissingBean
   public TracingMessagingMessageListenerAdapter createTracingMessagingMessageListenerAdapter(
       Tracer tracer) {
     return new TracingMessagingMessageListenerAdapter(tracer, traceInLog);
   }
 
   @Bean
+  @ConditionalOnMissingBean
   public TracingJmsListenerEndpointRegistry createTracingJmsListenerEndpointRegistry(
       TracingMessagingMessageListenerAdapter listenerAdapter) {
     return new TracingJmsListenerEndpointRegistry(listenerAdapter);
   }
 
   @Bean
+  @ConditionalOnMissingBean
   public JmsListenerConfigurer createTracingJmsListenerConfigurer(
       TracingJmsListenerEndpointRegistry registry) {
     return new TracingJmsListenerConfigurer(registry);
   }
 
   @Bean
+  @ConditionalOnMissingBean
   public JmsTemplate jmsTemplate(BeanFactory beanFactory, Tracer tracer) {
     // we create lazy proxy, to avoid dependency and config order
     // if JMS is used, and ConnectionFactory bean is not present,
