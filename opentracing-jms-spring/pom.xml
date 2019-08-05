@@ -27,7 +27,7 @@
   <description>OpenTracing Instrumentation for Spring JMS API</description>
 
   <properties>
-    <spring.version>5.1.8.RELEASE</spring.version>
+    <spring.version>5.1.9.RELEASE</spring.version>
   </properties>
 
   <dependencies>
@@ -74,7 +74,7 @@
     <dependency>
       <groupId>org.mockito</groupId>
       <artifactId>mockito-core</artifactId>
-      <version>2.25.1</version>
+      <version>2.28.2</version>
       <scope>test</scope>
     </dependency>
 
