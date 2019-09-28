@@ -19,7 +19,7 @@
 
   <groupId>io.opentracing.contrib</groupId>
   <artifactId>opentracing-jms-parent</artifactId>
-  <version>0.1.7-SNAPSHOT</version>
+  <version>0.1.7</version>
   <packaging>pom</packaging>
 
   <name>OpenTracing Instrumentation for JMS API</name>
@@ -32,7 +32,7 @@
     <connection>scm:git:https://github.com/opentracing-contrib/java-jms.git</connection>
     <developerConnection>scm:git:https://github.com/opentracing-contrib/java-jms.git
     </developerConnection>
-    <tag>HEAD</tag>
+    <tag>0.1.7</tag>
   </scm>
 
   <licenses>
