@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 The OpenTracing Authors
+ * Copyright 2017-2020 The OpenTracing Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -142,28 +142,29 @@ public class TracingSession implements Session {
 
   @Override
   public MessageConsumer createConsumer(Destination destination) throws JMSException {
-    return new TracingMessageConsumer(session.createConsumer(destination), tracer, traceInLog);
+    return new TracingMessageConsumer(session.createConsumer(destination), tracer, false,
+        traceInLog);
   }
 
   @Override
   public MessageConsumer createConsumer(Destination destination, String messageSelector)
       throws JMSException {
     return new TracingMessageConsumer(session.createConsumer(destination, messageSelector), tracer,
-        traceInLog);
+        false, traceInLog);
   }
 
   @Override
   public MessageConsumer createConsumer(Destination destination, String messageSelector,
       boolean noLocal) throws JMSException {
     return new TracingMessageConsumer(session.createConsumer(destination, messageSelector, noLocal),
-        tracer, traceInLog);
+        tracer, false, traceInLog);
   }
 
   @Override
   public MessageConsumer createSharedConsumer(Topic topic, String sharedSubscriptionName)
       throws JMSException {
     return new TracingMessageConsumer(session.createSharedConsumer(topic, sharedSubscriptionName),
-        tracer, traceInLog);
+        tracer, false, traceInLog);
   }
 
   @Override
@@ -171,7 +172,7 @@ public class TracingSession implements Session {
       String messageSelector) throws JMSException {
     return new TracingMessageConsumer(
         session.createSharedConsumer(topic, sharedSubscriptionName, messageSelector), tracer,
-        traceInLog);
+        false, traceInLog);
   }
 
   @Override
@@ -204,20 +205,22 @@ public class TracingSession implements Session {
   public MessageConsumer createDurableConsumer(Topic topic, String name, String messageSelector,
       boolean noLocal) throws JMSException {
     return new TracingMessageConsumer(
-        session.createDurableConsumer(topic, name, messageSelector, noLocal), tracer, traceInLog);
+        session.createDurableConsumer(topic, name, messageSelector, noLocal), tracer, false,
+        traceInLog);
   }
 
   @Override
   public MessageConsumer createSharedDurableConsumer(Topic topic, String name) throws JMSException {
     return new TracingMessageConsumer(session.createSharedDurableConsumer(topic, name), tracer,
-        traceInLog);
+        false, traceInLog);
   }
 
   @Override
   public MessageConsumer createSharedDurableConsumer(Topic topic, String name,
       String messageSelector) throws JMSException {
     return new TracingMessageConsumer(
-        session.createSharedDurableConsumer(topic, name, messageSelector), tracer, traceInLog);
+        session.createSharedDurableConsumer(topic, name, messageSelector), tracer, false,
+        traceInLog);
   }
 
   @Override
