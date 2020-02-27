@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 The OpenTracing Authors
+ * Copyright 2017-2020 The OpenTracing Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -142,7 +142,8 @@ public class TracingSession implements Session {
 
   @Override
   public MessageConsumer createConsumer(Destination destination) throws JMSException {
-    return new TracingMessageConsumer(session.createConsumer(destination), tracer, false, traceInLog);
+    return new TracingMessageConsumer(session.createConsumer(destination), tracer, false,
+        traceInLog);
   }
 
   @Override
@@ -204,7 +205,8 @@ public class TracingSession implements Session {
   public MessageConsumer createDurableConsumer(Topic topic, String name, String messageSelector,
       boolean noLocal) throws JMSException {
     return new TracingMessageConsumer(
-        session.createDurableConsumer(topic, name, messageSelector, noLocal), tracer, false, traceInLog);
+        session.createDurableConsumer(topic, name, messageSelector, noLocal), tracer, false,
+        traceInLog);
   }
 
   @Override
@@ -217,7 +219,8 @@ public class TracingSession implements Session {
   public MessageConsumer createSharedDurableConsumer(Topic topic, String name,
       String messageSelector) throws JMSException {
     return new TracingMessageConsumer(
-        session.createSharedDurableConsumer(topic, name, messageSelector), tracer, false, traceInLog);
+        session.createSharedDurableConsumer(topic, name, messageSelector), tracer, false,
+        traceInLog);
   }
 
   @Override
