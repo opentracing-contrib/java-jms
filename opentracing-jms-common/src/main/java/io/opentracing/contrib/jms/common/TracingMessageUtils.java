@@ -74,7 +74,7 @@ public class TracingMessageUtils {
   public static SpanContext extract(Message message, Tracer tracer) {
     SpanContext spanContext =
         tracer.extract(Format.Builtin.TEXT_MAP, new JmsTextMapExtractAdapter(message));
-    if (spanContext != null) {
+    if (spanContext != null && spanContext.toTraceId() != null && spanContext.toSpanId() != null) {
       return spanContext;
     }
 
