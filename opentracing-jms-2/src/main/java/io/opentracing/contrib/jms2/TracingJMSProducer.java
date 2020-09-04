@@ -173,7 +173,7 @@ public class TracingJMSProducer implements JMSProducer {
 
   @Override
   public JMSProducer send(Destination destination, Message message) {
-    Span span = TracingMessageUtils.buildAndInjectSpan(destination, message, tracer);
+    Span span = TracingMessageUtils.startAndInjectSpan(destination, message, tracer);
     try {
       jmsProducer.send(destination, message);
     } catch (Throwable e) {

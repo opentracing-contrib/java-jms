@@ -218,7 +218,8 @@ public class TracingActiveMQTest {
       assertEquals(0, mockSpan.generatedErrors().size());
       String operationName = mockSpan.operationName();
       assertTrue(operationName.equals(TracingMessageUtils.OPERATION_NAME_SEND)
-          || operationName.equals(TracingMessageUtils.OPERATION_NAME_RECEIVE));
+          || operationName.equals(TracingMessageUtils.OPERATION_NAME_RECEIVE)
+          || operationName.equals(TracingMessageUtils.OPERATION_NAME_ON_MESSAGE));
     }
   }
 

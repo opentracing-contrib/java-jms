@@ -59,7 +59,7 @@ public class TracingMessageUtilsTest {
   }
 
   @Test
-  public void extractContextFromProperties() {
+  public void extractContextFromMessage() {
     MockSpan span = mockTracer.buildSpan("test").start();
     ActiveMQTextMessage message = new ActiveMQTextMessage();
     TracingMessageUtils.inject(span, message, mockTracer);
@@ -70,11 +70,11 @@ public class TracingMessageUtilsTest {
   }
 
   @Test
-  public void buildAndFinishChildSpan() {
+  public void startAndFinishConsumerSpan() {
     MockSpan span = mockTracer.buildSpan("test").start();
     mockTracer.scopeManager().activate(span);
     SpanContext childContext =
-        TracingMessageUtils.buildAndFinishChildSpan(new ActiveMQTextMessage(), mockTracer);
+        TracingMessageUtils.startAndFinishConsumerSpan(new ActiveMQTextMessage(), mockTracer);
     assertNotNull(childContext);
 
     assertNotNull(mockTracer.activeSpan());
@@ -101,7 +101,7 @@ public class TracingMessageUtilsTest {
   }
 
   @Test
-  public void buildAndInjectSpan() throws Exception {
+  public void startAndInjectSpan() throws Exception {
     Destination destination = new ActiveMQQueue("queue");
 
     ActiveMQTextMessage message = new ActiveMQTextMessage();
@@ -109,35 +109,35 @@ public class TracingMessageUtilsTest {
     mockTracer.scopeManager().activate(span);
 
     MockSpan injected =
-        (MockSpan) TracingMessageUtils.buildAndInjectSpan(destination, message, mockTracer);
+        (MockSpan) TracingMessageUtils.startAndInjectSpan(destination, message, mockTracer);
 
     assertFalse(message.getProperties().isEmpty());
     assertEquals(span.context().spanId(), injected.parentId());
   }
 
   @Test
-  public void buildFollowingSpanNoParent() {
+  public void startListenerSpanWithoutParent() {
     ActiveMQTextMessage message = new ActiveMQTextMessage();
-    Span span = TracingMessageUtils.buildFollowingSpan(message, mockTracer);
+    Span span = TracingMessageUtils.startListenerSpan(message, mockTracer);
     assertTrue(span instanceof MockSpan);
   }
 
   @Test
-  public void buildFollowingSpan() {
+  public void startListenerSpan() {
     ActiveMQTextMessage message = new ActiveMQTextMessage();
     Destination destination = new ActiveMQQueue("queue");
     MockSpan injected =
-        (MockSpan) TracingMessageUtils.buildAndInjectSpan(destination, message, mockTracer);
-    MockSpan span = (MockSpan) TracingMessageUtils.buildFollowingSpan(message, mockTracer);
+        (MockSpan) TracingMessageUtils.startAndInjectSpan(destination, message, mockTracer);
+    MockSpan span = (MockSpan) TracingMessageUtils.startListenerSpan(message, mockTracer);
     assertEquals(span.parentId(), injected.context().spanId());
   }
 
   @Test
-  public void buildFollowingSpanWithActiveSpan() {
+  public void startListenerSpanWithActiveSpan() {
     ActiveMQTextMessage message = new ActiveMQTextMessage();
     MockSpan parent = mockTracer.buildSpan("test").start();
     mockTracer.scopeManager().activate(parent);
-    MockSpan span = (MockSpan) TracingMessageUtils.buildFollowingSpan(message, mockTracer);
+    MockSpan span = (MockSpan) TracingMessageUtils.startListenerSpan(message, mockTracer);
     assertEquals(span.parentId(), parent.context().spanId());
   }
 

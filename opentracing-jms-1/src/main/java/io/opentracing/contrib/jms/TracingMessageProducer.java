@@ -98,7 +98,7 @@ public class TracingMessageProducer implements MessageProducer {
 
   @Override
   public void send(Message message) throws JMSException {
-    Span span = TracingMessageUtils.buildAndInjectSpan(getDestination(), message, tracer);
+    Span span = TracingMessageUtils.startAndInjectSpan(getDestination(), message, tracer);
     try {
       messageProducer.send(message);
     } catch (Throwable e) {
@@ -112,7 +112,7 @@ public class TracingMessageProducer implements MessageProducer {
   @Override
   public void send(Message message, int deliveryMode, int priority, long timeToLive)
       throws JMSException {
-    Span span = TracingMessageUtils.buildAndInjectSpan(getDestination(), message, tracer);
+    Span span = TracingMessageUtils.startAndInjectSpan(getDestination(), message, tracer);
     try {
       messageProducer.send(message, deliveryMode, priority, timeToLive);
     } catch (Throwable e) {
@@ -125,7 +125,7 @@ public class TracingMessageProducer implements MessageProducer {
 
   @Override
   public void send(Destination destination, Message message) throws JMSException {
-    Span span = TracingMessageUtils.buildAndInjectSpan(destination, message, tracer);
+    Span span = TracingMessageUtils.startAndInjectSpan(destination, message, tracer);
     try {
       messageProducer.send(destination, message);
     } catch (Throwable e) {
@@ -139,7 +139,7 @@ public class TracingMessageProducer implements MessageProducer {
   @Override
   public void send(Destination destination, Message message, int deliveryMode, int priority,
       long timeToLive) throws JMSException {
-    Span span = TracingMessageUtils.buildAndInjectSpan(destination, message, tracer);
+    Span span = TracingMessageUtils.startAndInjectSpan(destination, message, tracer);
     try {
       messageProducer.send(destination, message, deliveryMode, priority, timeToLive);
     } catch (Throwable e) {
