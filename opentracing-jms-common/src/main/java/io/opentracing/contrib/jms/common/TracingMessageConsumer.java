@@ -73,9 +73,9 @@ public class TracingMessageConsumer implements MessageConsumer {
   public Message receive() throws JMSException {
     Message message = messageConsumer.receive();
     if (proxyMessage) {
-      return proxy(message, finishSpan(message));
+      return proxy(message, startAndFinishConsumerSpan(message));
     }
-    finishSpan(message);
+    startAndFinishConsumerSpan(message);
     return message;
   }
 
@@ -83,9 +83,9 @@ public class TracingMessageConsumer implements MessageConsumer {
   public Message receive(long timeout) throws JMSException {
     Message message = messageConsumer.receive(timeout);
     if (proxyMessage) {
-      return proxy(message, finishSpan(message));
+      return proxy(message, startAndFinishConsumerSpan(message));
     }
-    finishSpan(message);
+    startAndFinishConsumerSpan(message);
     return message;
   }
 
@@ -93,9 +93,9 @@ public class TracingMessageConsumer implements MessageConsumer {
   public Message receiveNoWait() throws JMSException {
     Message message = messageConsumer.receiveNoWait();
     if (proxyMessage) {
-      return proxy(message, finishSpan(message));
+      return proxy(message, startAndFinishConsumerSpan(message));
     }
-    finishSpan(message);
+    startAndFinishConsumerSpan(message);
     return message;
   }
 
@@ -104,8 +104,8 @@ public class TracingMessageConsumer implements MessageConsumer {
     messageConsumer.close();
   }
 
-  private SpanContext finishSpan(Message message) {
-    return TracingMessageUtils.buildAndFinishChildSpan(message, tracer);
+  private SpanContext startAndFinishConsumerSpan(Message message) {
+    return TracingMessageUtils.startAndFinishConsumerSpan(message, tracer);
   }
 
   private Message proxy(final Message message, final SpanContext spanContext) {

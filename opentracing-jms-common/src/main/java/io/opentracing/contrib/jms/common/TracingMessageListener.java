@@ -42,7 +42,7 @@ public class TracingMessageListener implements MessageListener {
 
   @Override
   public void onMessage(Message message) {
-    Span span = TracingMessageUtils.buildFollowingSpan(message, tracer);
+    Span span = TracingMessageUtils.startListenerSpan(message, tracer);
     if (traceInLog) {
       if (span != null) {
         MDC.put("spanId", span.context().toSpanId());

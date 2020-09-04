@@ -60,7 +60,7 @@ public class TracingMessagingMessageListenerAdapter extends MessagingMessageList
   @Override
   protected void sendResponse(Session session, Destination destination, Message response)
       throws JMSException {
-    Span span = TracingMessageUtils.buildAndInjectSpan(destination, response, tracer);
+    Span span = TracingMessageUtils.startAndInjectSpan(destination, response, tracer);
     try {
       super.sendResponse(session, destination, response);
     } finally {
