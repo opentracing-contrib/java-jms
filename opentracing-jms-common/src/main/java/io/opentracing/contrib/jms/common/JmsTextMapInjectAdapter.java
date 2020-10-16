@@ -24,7 +24,7 @@ import javax.jms.Message;
  */
 public class JmsTextMapInjectAdapter implements TextMap {
 
-  static final String DASH = "_$dash$_";
+  static final String DASH = "__dash__";
   private final Message message;
 
   public JmsTextMapInjectAdapter(Message message) {

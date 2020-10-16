@@ -143,7 +143,7 @@ is necessary to encode the trace context and baggage item names.
 
 The steps used to encode the key names are:
 
-- replace any `-` character with `_$dash$_`
+- replace any `-` character with `__dash__`
 
 When the message is consumed, the steps are reversed to decode the original key names.
 
