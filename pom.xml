@@ -184,6 +184,11 @@
             <exclude>mvnw.cmd</exclude>
             <exclude>.mvn/wrapper/maven-wrapper.properties</exclude>
             <exclude>.coveralls.yml</exclude>
+            <exclude>*.pkl</exclude>
+            <exclude>*.toml</exclude>
+            <exclude>**/*.yaml</exclude>
+            <exclude>**/*.yml</exclude>
+            <exclude>.editorconfig</exclude>
           </excludes>
         </configuration>
         <executions>
