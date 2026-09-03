@@ -1,12 +1,15 @@
 [![Build Status][ci-img]][ci] [![Coverage Status][cov-img]][cov] [![Released Version][maven-img]][maven] [![Apache-2.0 license](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 # OpenTracing JMS Instrumentation
+
 OpenTracing instrumentation for JMS.
 
 ## Installation
 
 ### JMS 1
+
 pom.xml
+
 ```xml
 <dependency>
     <groupId>io.opentracing.contrib</groupId>
@@ -16,7 +19,9 @@ pom.xml
 ```
 
 ### JMS 2
+
 pom.xml
+
 ```xml
 <dependency>
     <groupId>io.opentracing.contrib</groupId>
@@ -26,7 +31,9 @@ pom.xml
 ```
 
 ### Spring JMS
+
 pom.xml
+
 ```xml
 <dependency>
     <groupId>io.opentracing.contrib</groupId>
@@ -34,7 +41,9 @@ pom.xml
     <version>VERSION</version>
 </dependency>
 ```
+
 You most likely need to exclude spring-jms and spring-context dependencies and add own (to avoid jar hell):
+
 ```xml
 <dependency>
     <groupId>io.opentracing.contrib</groupId>
@@ -46,8 +55,8 @@ You most likely need to exclude spring-jms and spring-context dependencies and a
             <artifactId>spring-jms</artifactId>
         </exclusion>
         <exclusion>
-             <groupId>org.springframework</groupId>
-             <artifactId>spring-context</artifactId>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
         </exclusion>
     </exclusions>
 </dependency>
@@ -74,6 +83,7 @@ Tracer tracer = ...
 ```
 
 ### JMS API
+
 ```java
 // decorate JMS MessageProducer with TracingMessageProducer
 TracingMessageProducer producer = new TracingMessageProducer(messageProducer, tracer);
@@ -102,9 +112,10 @@ Message message = consumer.receive();
 ```
 
 ### Spring JMS
+
 ```java
 // create TracingJmsTemplate which extends Spring JmsTemplate
-JmsTemplate jmsTemplate = new TracingJmsTemplate(connectionFactory, tracer); 
+JmsTemplate jmsTemplate = new TracingJmsTemplate(connectionFactory, tracer);
 
 // send and receive messages as usual
 jmsTemplate.send(...)
@@ -115,8 +126,9 @@ jmsTemplate.receiveAndConvert(...);
 ```
 
 If `@JmsListener` is used then it is required to import TracingJmsConfiguration e.g.
- ```java
-@Configuration 
+
+```java
+@Configuration
 @Import(TracingJmsConfiguration.class)
 @EnableJms
 public class JmsConfiguration {
@@ -127,6 +139,7 @@ public class JmsConfiguration {
 ### Java 9+
 
 Modules _opentracing-jms-1_ and _opentracing-jms-2_ have next _Automatic-Module-Name_ accordingly:
+
 - io.opentracing.contrib.jms1
 - io.opentracing.contrib.jms2
 
