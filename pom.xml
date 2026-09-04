@@ -65,7 +65,7 @@
     <activemq.version>5.15.11</activemq.version>
     <maven-jar-plugin.version>3.1.2</maven-jar-plugin.version>
     <coveralls-maven-plugin.version>4.3.0</coveralls-maven-plugin.version>
-    <jacoco-maven-plugin.version>0.8.4</jacoco-maven-plugin.version>
+    <jacoco-maven-plugin.version>0.8.15</jacoco-maven-plugin.version>
   </properties>
 
   <modules>
