@@ -56,7 +56,9 @@ public class TracingMessageListener implements MessageListener {
         messageListener.onMessage(message);
       }
     } finally {
-      span.finish();
+      if (span != null) {
+        span.finish();
+      }
       if (traceInLog) {
         MDC.remove("spanId");
         MDC.remove("traceId");
