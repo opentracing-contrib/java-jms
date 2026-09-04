@@ -66,7 +66,9 @@ public class TracingMessagingMessageListenerAdapter extends MessagingMessageList
     try {
       super.sendResponse(session, destination, response);
     } finally {
-      span.finish();
+      if (span != null) {
+        span.finish();
+      }
     }
   }
 
