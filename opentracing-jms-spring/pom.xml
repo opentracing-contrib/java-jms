@@ -27,7 +27,7 @@
   <description>OpenTracing Instrumentation for Spring JMS API</description>
 
   <properties>
-    <spring.version>5.3.39</spring.version>
+    <spring.version>6.1.20</spring.version>
   </properties>
 
   <dependencies>
