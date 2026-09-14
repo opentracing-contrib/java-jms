@@ -1,7 +1,8 @@
 [tools]
 "aqua:owenlamont/ryl" = "0.21.0"
+betterleaks = "1.8.1"
 editorconfig-checker = "4.0.1"
-hk = "1.57.0"
+hk = "2.0.0"
 java = "temurin-11.0.32+101"
 maven = "3.9.16"
 markdownlint-cli2 = "0.23.2"
